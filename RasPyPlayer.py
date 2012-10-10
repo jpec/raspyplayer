@@ -37,6 +37,7 @@ import tkinter
 PATH="/home/jpec/Téléchargements/Binreader"
 OMXCMD="lxterminal --command \"omxplayer -o hdmi {0}\""
 EXTENSIONS=[".avi", ".mpg", ".mp4"]
+DEBUG=1
 
 #-------------------------------------------------------------------------#
 # DEFINITION DES CLASSES                                                  #
@@ -51,6 +52,8 @@ class Player(object):
 
     def playFile(self, file):
         """Joue le fichier passé en paramètre"""
+        if DEBUG:
+            print(file)
         os.system(OMXCMD.format(file))
 
     def getFiles(self, path):
@@ -62,7 +65,8 @@ class Player(object):
     def displayFiles(self):
         """Affiche la liste des fichiers"""
         for file, path in self.files.items():
-            print(file)
+            if DEBUG:
+                print(file)
             self.w_files.insert(tkinter.END, file)
             
     def refreshFiles(self):
@@ -72,7 +76,14 @@ class Player(object):
             self.w_files.delete(0, tkinter.END)
         self.getFiles(self.path)
         self.displayFiles()
-
+        
+    def playSelection(self):
+        """Lire le fichier sélectionné"""
+        sel = self.w_files.curselection()
+        for i in sel:
+            f = self.w_files.get(i)
+            self.playFile(self.files[f])
+        
     def creerGui(self):
         """Construction de la fenêtre"""
         self.root = tkinter.Tk()
@@ -103,6 +114,12 @@ class Player(object):
                              command=self.refreshFiles
                              )
         self.w_refresh.grid(row=1, column=0, padx=2, pady=2)
+        # Bouton Play
+        self.w_play = tkinter.Button(self.botframe,
+                             text="Lire la vidéo",
+                             command=self.playSelection
+                             )
+        self.w_play.grid(row=1, column=1, padx=2, pady=2)        
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
                              text="Aide",
