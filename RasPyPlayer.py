@@ -68,6 +68,8 @@ class Player(object):
     def refreshFiles(self):
         """Rafraichit la liste des fichiers"""
         self.files = {}
+        if self.w_files.size() > 0:
+            self.w_files.delete(0, tkinter.END)
         self.getFiles(self.path)
         self.displayFiles()
 
@@ -111,25 +113,25 @@ class Player(object):
     def displayHelp(self):
         """Affiche l'aide"""
         msg = "RasPyPlayer, v{0}\n"
-        msg += "Auteur  : Julien Pecqueur (JPEC)\n"
-        msg += "Email   : jpec@julienpecqueur.net\n"
-        msg += "Site    : http://julienpecqueur.com\n"
+        msg += "Auteur : Julien Pecqueur (JPEC)\n"
+        msg += "Email : jpec@julienpecqueur.net\n"
+        msg += "Site : http://julienpecqueur.com\n"
         msg += "Sources : https://github.com/jpec/RasPyPlayer\n"
-        msg += "Bugs    : https://github.com/jpec/RasPyPlayer/issues\n"
+        msg += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
         msg += "License : GNUGPL\n"
         msg += "\n"
         msg += "Raccourcis clavier pendant la lecture :\n"
-        msg += "n     : Sous-titre précédent\n"
-        msg += "m     : Sous-titre suivant\n"
-        msg += "s     : Bascule de sous-titre\n"
-        msg += "q     : Quitte le lecteur\n"
-        msg += "p     : Pause/Reprise (espace)\n"
-        msg += "-     : Baisse le volume\n"
-        msg += "+     : Monte le volume\n"
-        msg += "Left  : Seek -30\n"
+        msg += "n : Sous-titre précédent\n"
+        msg += "m : Sous-titre suivant\n"
+        msg += "s : Bascule de sous-titre\n"
+        msg += "q : Quitte le lecteur\n"
+        msg += "p : Pause/Reprise (espace)\n"
+        msg += "- : Baisse le volume\n"
+        msg += "+ : Monte le volume\n"
+        msg += "Left : Seek -30\n"
         msg += "Right : Seek +30\n"
-        msg += "Down  : Seek -600\n"
-        msg += "Up    : Seek +600\n"
+        msg += "Down : Seek -600\n"
+        msg += "Up : Seek +600\n"
         tkinter.messagebox.showinfo("Aide", msg.format(VERSION))
         
     def closePlayer(self):
