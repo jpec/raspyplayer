@@ -34,8 +34,8 @@ import tkinter
 #-------------------------------------------------------------------------#
 # PARAMETRAGE PROGRAMME                                                   #
 #-------------------------------------------------------------------------#
-PATH="/home/jpec/Téléchargements/Binreader"
-OMXCMD="lxterminal --command \"omxplayer -o hdmi {0}\""
+PATH="/home/pi"
+OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
 EXTENSIONS=[".avi", ".mpg", ".mp4"]
 DEBUG=1
 
@@ -53,7 +53,7 @@ class Player(object):
     def playFile(self, file):
         """Joue le fichier passé en paramètre"""
         if DEBUG:
-            print(file)
+            print(OMXCMD.format(file))
         os.system(OMXCMD.format(file))
 
     def getFiles(self, path):
