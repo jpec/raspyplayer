@@ -35,8 +35,9 @@ import tkinter
 # PARAMETRAGE PROGRAMME                                                   #
 #-------------------------------------------------------------------------#
 PATH="/home/pi"
+PATH="D:/Mes Documents/Vidéos Delivery"
 OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
-EXTENSIONS=[".avi", ".mpg", ".mp4"]
+EXTENSIONS=[".avi", ".mpg", ".mp4", ".wmv"]
 DEBUG=1
 
 #-------------------------------------------------------------------------#
@@ -58,9 +59,16 @@ class Player(object):
 
     def getFiles(self, path):
         """Récupère la liste des fichiers et alimente le dictionnaire"""
+        if DEBUG:
+            print("Scanning : "+path)
         for file in os.listdir(path):
+            filepath = path+"/"+file
             if len(file) > 4 and file[-4: len(file)] in EXTENSIONS:
-                self.files[os.path.basename(file)] = path+"/"+file
+                # Si c'est un fichier vidéo alors on l'ajoute
+                self.files[os.path.basename(file)] = filepath
+            elif os.path.isdir(filepath):
+                # Si c'est un répertoire alors on le scanne
+                self.getFiles(filepath)
 
     def displayFiles(self):
         """Affiche la liste des fichiers"""
@@ -109,23 +117,29 @@ class Player(object):
         self.botframe = tkinter.Frame(self.root, borderwidth=2)
         self.botframe.pack({"side": "left"})
         # Bouton Refresh
-        self.w_refresh = tkinter.Button(self.botframe,
-                             text="Rafraichir les fichiers",
-                             command=self.refreshFiles
-                             )
-        self.w_refresh.grid(row=1, column=0, padx=2, pady=2)
+        self.w_scan = tkinter.Button(self.botframe,
+                                     text="Rafraichir",
+                                     command=self.refreshFiles
+                                     )
+        self.w_scan.grid(row=1, column=0, padx=2, pady=2)
         # Bouton Play
         self.w_play = tkinter.Button(self.botframe,
-                             text="Lire la vidéo",
-                             command=self.playSelection
-                             )
+                                     text="Lire la vidéo",
+                                     command=self.playSelection
+                                     )
         self.w_play.grid(row=1, column=1, padx=2, pady=2)        
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
-                             text="Aide",
-                             command=self.displayHelp
-                             )
+                                     text="Aide",
+                                     command=self.displayHelp
+                                     )
         self.w_help.grid(row=1, column=2, padx=2, pady=2)
+        # Bouton Quit
+        self.w_quit = tkinter.Button(self.botframe,
+                                     text="Quitter",
+                                     command=self.closePlayer
+                                     )
+        self.w_quit.grid(row=1, column=3, padx=2, pady=2)
         
     def displayHelp(self):
         """Affiche l'aide"""
