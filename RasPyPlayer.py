@@ -30,6 +30,7 @@ VERSION = "0.1-dev"
 #-------------------------------------------------------------------------#
 import os
 import tkinter
+import sqlite3
 
 #-------------------------------------------------------------------------#
 # PARAMETRAGE PROGRAMME                                                   #
@@ -38,37 +39,102 @@ PATH="/home/pi"
 PATH="D:/Mes Documents/Vidéos Delivery"
 OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
 EXTENSIONS=[".avi", ".mpg", ".mp4", ".wmv"]
+DB="RaspPyPlayer.sqlite3"
+DBCREATE = "CREATE TABLE files (file, path)"
+DBADD = "INSERT INTO files VALUES (?, ?)"
+DBDROP = "DROP TABLE files"
+DBALL = "SELECT * FROM files"
 DEBUG=1
 
 #-------------------------------------------------------------------------#
 # DEFINITION DES CLASSES                                                  #
 #-------------------------------------------------------------------------#
 class Player(object):
-    def __init__(self, path):
+    def __init__(self, path, db):
         """Constructeur de la classe Player"""
         self.path = path
+        self.db = db
         self.files = {}
+        self.conDB = False
+        self.curDB = False
+        self.topDB = False
         self.creerGui()
-        self.refreshFiles()
+        self.openDB()
+        self.listFiles()
+        self.displayFiles()
 
-    def playFile(self, file):
-        """Joue le fichier passé en paramètre"""
+    def openDB(self):
+        """Ouvre la base de donnée, la créé le cas échéant"""
+        sql = False
+        bind = False
+        if os.path.isfile(self.db):
+            self.topDB = True
+        # Ouverture base de donnée :
+        self.conDB = sqlite3.connect(self.db)
+        self.curDB = self.conDB.cursor()
+
+    def initDB(self):
+        """Initialisation de la base de données"""
         if DEBUG:
-            print(OMXCMD.format(file))
-        os.system(OMXCMD.format(file))
+            print("Initilisation de la base de données")
+        if self.topDB:
+            self.execDB(DBDROP, False)
+        self.execDB(DBCREATE, False)
+        self.topDB = True
 
-    def getFiles(self, path):
-        """Récupère la liste des fichiers et alimente le dictionnaire"""
+    def closeDB(self):
+        """Ferme la base de données"""
+        self.curDB.close()
+        self.conDB.close()
+
+    def execDB(self, sql, bind):
+        """Exécute une requête dans la base de données"""
+        if sql:
+            if bind:
+                if DEBUG:
+                    print(DBADD, sql, bind)
+                self.curDB.execute(sql, bind)
+            else:
+                self.curDB.execute(sql)
+            self.conDB.commit() 
+
+    def refreshBase(self):
+        """Rafraîchi la base de données"""
+        if not self.topDB:
+            self.initDB()
+        self.scanFiles(self.path)
+        self.listFiles()
+
+    def scanFiles(self, path):
+        """Scan les répertoires et alimente la base de données"""
         if DEBUG:
             print("Scanning : "+path)
         for file in os.listdir(path):
             filepath = path+"/"+file
             if len(file) > 4 and file[-4: len(file)] in EXTENSIONS:
                 # Si c'est un fichier vidéo alors on l'ajoute
-                self.files[os.path.basename(file)] = filepath
+                self.execDB(DBADD, (os.path.basename(file), filepath))
             elif os.path.isdir(filepath):
                 # Si c'est un répertoire alors on le scanne
-                self.getFiles(filepath)
+                self.scanFiles(filepath)
+
+    def listFiles(self):
+        """Liste tous les fichiers présents dans la base"""
+        if not self.topDB:
+            self.initDB()
+        if DEBUG:
+            print("Listing :")
+        self.curDB.execute(DBALL)
+        for file, path in self.curDB:
+            if DEBUG:
+                print(file, path)
+            self.files[file] = path
+
+    def playFile(self, file):
+        """Joue le fichier passé en paramètre"""
+        if DEBUG:
+            print(OMXCMD.format(file))
+        os.system(OMXCMD.format(file))
 
     def displayFiles(self):
         """Affiche la liste des fichiers"""
@@ -82,7 +148,7 @@ class Player(object):
         self.files = {}
         if self.w_files.size() > 0:
             self.w_files.delete(0, tkinter.END)
-        self.getFiles(self.path)
+        self.refreshBase()
         self.displayFiles()
         
     def playSelection(self):
@@ -118,7 +184,7 @@ class Player(object):
         self.botframe.pack({"side": "left"})
         # Bouton Refresh
         self.w_scan = tkinter.Button(self.botframe,
-                                     text="Rafraichir",
+                                     text="Scanner les médias",
                                      command=self.refreshFiles
                                      )
         self.w_scan.grid(row=1, column=0, padx=2, pady=2)
@@ -167,13 +233,14 @@ class Player(object):
         
     def closePlayer(self):
         """Quitte l'application"""
+        self.closeDB()
         self.root.destroy()
         
 #-------------------------------------------------------------------------#
 # PROGRAMME PRINCIPAL                                                     #
 #-------------------------------------------------------------------------#
 
-player = Player(PATH)
+player = Player(PATH, DB)
 player.root.mainloop()
 
 #-------------------------------------------------------------------------#
