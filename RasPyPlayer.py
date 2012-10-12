@@ -7,7 +7,7 @@ VERSION = "0.1-dev"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
-# Site : http://julienpecqueur.com
+# Site : http://julienpecqueur.net
 # Sources : https://github.com/jpec/RasPyPlayer
 # Bugs : https://github.com/jpec/RasPyPlayer/issues
 # License :
@@ -239,7 +239,7 @@ class Player(object):
         msg = "RasPyPlayer, v{0}\n"
         msg += "Auteur : Julien Pecqueur (JPEC)\n"
         msg += "Email : jpec@julienpecqueur.net\n"
-        msg += "Site : http://julienpecqueur.com\n"
+        msg += "Site : http://julienpecqueur.net\n"
         msg += "Sources : https://github.com/jpec/RasPyPlayer\n"
         msg += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
         msg += "License : GNUGPL\n"
