@@ -36,7 +36,6 @@ import sqlite3
 # PARAMETRAGE PROGRAMME                                                   #
 #-------------------------------------------------------------------------#
 PATH="/home/pi"
-PATH="D:/Mes Documents/Vidéos Delivery"
 OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
 EXTENSIONS=[".avi", ".mpg", ".mp4", ".wmv"]
 DB="RaspPyPlayer.sqlite3"
