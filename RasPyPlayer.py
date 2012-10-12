@@ -35,15 +35,44 @@ import sqlite3
 #-------------------------------------------------------------------------#
 # PARAMETRAGE PROGRAMME                                                   #
 #-------------------------------------------------------------------------#
+# PATH - Chemin vers le dossier racine contenant les vidéos :
 PATH="/home/pi"
+
+# OMXCMD - Commande pour lancer le player omxplayer :
 OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
-EXTENSIONS=[".avi", ".mpg", ".mp4", ".wmv"]
+
+# EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
+EXT=[".avi", ".mpg", ".mp4", ".wmv"]
+
+# DB - Nom base de données locale :
 DB="RaspPyPlayer.sqlite3"
+
+# DBCREATE - Requête SQL pour créer la table "files" :
 DBCREATE = "CREATE TABLE files (file, path)"
+
+# DBADD - Requête SQL pour ajouter une ligne dans "files" :
 DBADD = "INSERT INTO files VALUES (?, ?)"
+
+# DBDROP - Requête SQL pour droper la table "files" :
 DBDROP = "DROP TABLE files"
+
+# DBALL - Requête SQL pour lister toutes les lignes de "files" :
 DBALL = "SELECT * FROM files"
+
+# DEBUG - Mode debug (0 / 1) :
 DEBUG=1
+
+#-------------------------------------------------------------------------#
+# CHAINES                                                                 #
+#-------------------------------------------------------------------------#
+M_TITLE = "RasPyPlayer"
+M_INIT = "Initialisation de la base de données"
+M_SCAN = "Scanning : {0}"
+M_LIST = "Listing :"
+M_BTSCAN = "Scanner"
+M_BTPLAY = "Lecture"
+M_BTHELP = "Aide"
+M_BTQUIT = "Quitter"
 
 #-------------------------------------------------------------------------#
 # DEFINITION DES CLASSES                                                  #
@@ -68,14 +97,13 @@ class Player(object):
         bind = False
         if os.path.isfile(self.db):
             self.topDB = True
-        # Ouverture base de donnée :
         self.conDB = sqlite3.connect(self.db)
         self.curDB = self.conDB.cursor()
 
     def initDB(self):
         """Initialisation de la base de données"""
         if DEBUG:
-            print("Initilisation de la base de données")
+            print(M_INIT)
         if self.topDB:
             self.execDB(DBDROP, False)
         self.execDB(DBCREATE, False)
@@ -107,10 +135,10 @@ class Player(object):
     def scanFiles(self, path):
         """Scan les répertoires et alimente la base de données"""
         if DEBUG:
-            print("Scanning : "+path)
+            print(M_SCAN.format(path))
         for file in os.listdir(path):
             filepath = path+"/"+file
-            if len(file) > 4 and file[-4: len(file)] in EXTENSIONS:
+            if len(file) > 4 and file[-4: len(file)] in EXT:
                 # Si c'est un fichier vidéo alors on l'ajoute
                 self.execDB(DBADD, (os.path.basename(file), filepath))
             elif os.path.isdir(filepath):
@@ -122,7 +150,7 @@ class Player(object):
         if not self.topDB:
             self.initDB()
         if DEBUG:
-            print("Listing :")
+            print(M_LIST)
         self.curDB.execute(DBALL)
         for file, path in self.curDB:
             if DEBUG:
@@ -160,7 +188,7 @@ class Player(object):
     def creerGui(self):
         """Construction de la fenêtre"""
         self.root = tkinter.Tk()
-        self.root.title("RasPyPlayer")
+        self.root.title(M_TITLE)
         # Centrage fenêtre
         w = 800
         h = 600
@@ -183,25 +211,25 @@ class Player(object):
         self.botframe.pack({"side": "left"})
         # Bouton Refresh
         self.w_scan = tkinter.Button(self.botframe,
-                                     text="Scanner les médias",
+                                     text=M_BTSCAN,
                                      command=self.refreshFiles
                                      )
         self.w_scan.grid(row=1, column=0, padx=2, pady=2)
         # Bouton Play
         self.w_play = tkinter.Button(self.botframe,
-                                     text="Lire la vidéo",
+                                     text=M_BTPLAY,
                                      command=self.playSelection
                                      )
         self.w_play.grid(row=1, column=1, padx=2, pady=2)        
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
-                                     text="Aide",
+                                     text=M_BTHELP,
                                      command=self.displayHelp
                                      )
         self.w_help.grid(row=1, column=2, padx=2, pady=2)
         # Bouton Quit
         self.w_quit = tkinter.Button(self.botframe,
-                                     text="Quitter",
+                                     text=M_BTQUIT,
                                      command=self.closePlayer
                                      )
         self.w_quit.grid(row=1, column=3, padx=2, pady=2)
