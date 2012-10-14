@@ -45,7 +45,7 @@ OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
 EXT=[".avi", ".mpg", ".mp4", ".wmv"]
 
 # DB - Nom base de données locale :
-DB="RaspPyPlayer.sqlite3"
+DB="RasPyPlayer.sqlite3"
 
 # DBCREATE - Requête SQL pour créer la table "files" :
 DBCREATE = "CREATE TABLE files (file, path)"
@@ -63,7 +63,7 @@ DBALL = "SELECT * FROM files ORDER BY file"
 DBSRC = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
 
 # DEBUG - Mode debug (0 / 1) :
-DEBUG=1
+DEBUG=0
 
 #-------------------------------------------------------------------------#
 # CHAINES                                                                 #
