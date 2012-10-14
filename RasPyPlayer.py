@@ -158,6 +158,7 @@ class Player(object):
             self.search = ('%'+s+'%',)
         else:
             self.search = False
+        self.initFiles()
         self.listFiles()
         self.displayFiles()
 
@@ -191,13 +192,17 @@ class Player(object):
         for file in liste:
             if DEBUG:
                 print(file)
-            self.w_files.insert(tkinter.END, file)      
-        
-    def refreshFiles(self):
-        """Rafraichit la liste des fichiers"""
+            self.w_files.insert(tkinter.END, file)
+
+    def initFiles(self):
+        """Initialise les listes de fichiers"""
         self.files = {}
         if self.w_files.size() > 0:
             self.w_files.delete(0, tkinter.END)
+            
+    def refreshFiles(self):
+        """Rafraichit la liste des fichiers"""
+        self.initFiles()
         self.refreshBase()
         self.displayFiles()
         
