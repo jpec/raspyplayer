@@ -59,6 +59,9 @@ DBDROP = "DROP TABLE files"
 # DBALL - Requête SQL pour lister toutes les lignes de "files" :
 DBALL = "SELECT * FROM files ORDER BY file"
 
+# DBSRC - Requête SQL pour rechercher des lignes dans "files" :
+DBSRC = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
+
 # DEBUG - Mode debug (0 / 1) :
 DEBUG=1
 
@@ -73,6 +76,8 @@ M_BTSCAN = "Scanner"
 M_BTPLAY = "Lecture"
 M_BTHELP = "Aide"
 M_BTQUIT = "Quitter"
+M_BTSEARCH = "Go"
+M_SEARCH = "Recherche :"
 
 #-------------------------------------------------------------------------#
 # DEFINITION DES CLASSES                                                  #
@@ -86,6 +91,7 @@ class Player(object):
         self.conDB = False
         self.curDB = False
         self.topDB = False
+        self.search = False
         self.creerGui()
         self.openDB()
         self.listFiles()
@@ -119,7 +125,7 @@ class Player(object):
         if sql:
             if bind:
                 if DEBUG:
-                    print(DBADD, sql, bind)
+                    print(sql, bind)
                 self.curDB.execute(sql, bind)
             else:
                 self.curDB.execute(sql)
@@ -144,14 +150,27 @@ class Player(object):
             elif os.path.isdir(filepath):
                 # Si c'est un répertoire alors on le scanne
                 self.scanFiles(filepath)
+    
+    def searchFiles(self):
+        """Recherche les fichiers"""
+        s = self.w_search.get()
+        if s:
+            self.search = ('%'+s+'%',)
+        else:
+            self.search = False
+        self.listFiles()
+        self.displayFiles()
 
     def listFiles(self):
-        """Liste tous les fichiers présents dans la base"""
+        """Liste les fichiers présents dans la base"""
         if not self.topDB:
             self.initDB()
         if DEBUG:
             print(M_LIST)
-        self.curDB.execute(DBALL)
+        if self.search:
+            self.execDB(DBSRC, self.search)
+        else:
+            self.execDB(DBALL, False)
         for file, path in self.curDB:
             if DEBUG:
                 print(file, path)
@@ -201,30 +220,47 @@ class Player(object):
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-	# Zone nom répertoire
+	# Zone recherche
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
-        # Label mode
-        self.w_label = tkinter.Label(self.topframe, text=self.path)
-        self.w_label.grid(row=1, column=0, padx=2, pady=2)        
+        # Input recherche
+        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH)
+        self.w_label.grid(row=1, column=0, padx=2, pady=2)
+        self.w_search = tkinter.Entry(self.topframe)
+        self.w_search.grid(row=1, column=1, padx=2, pady=2)
+        # Bouton rechercher
+        self.w_exec = tkinter.Button(self.topframe,
+                                     text=M_BTSEARCH,
+                                     command=self.searchFiles
+                                     )
+        self.w_exec.grid(row=1, column=2, padx=2, pady=2)
+        # Zone liste fichiers
+        self.midframe = tkinter.Frame(self.root, borderwidth=2)
+        self.midframe.pack(fill=tkinter.BOTH, expand=1)
         # Liste des fichiers
-        self.w_files = tkinter.Listbox(self.root)
-        self.w_files.pack(fill=tkinter.BOTH, expand=1)
+        self.w_files = tkinter.Listbox(self.midframe)
+        self.w_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
+        self.w_scroll = tkinter.Scrollbar(self.midframe,
+                                          command=self.w_files.yview)
+        self.w_files.configure(yscrollcommand=self.w_scroll.set)
+        self.w_scroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         # Groupe boutons
         self.botframe = tkinter.Frame(self.root, borderwidth=2)
         self.botframe.pack({"side": "left"})
-        # Bouton Refresh
-        self.w_scan = tkinter.Button(self.botframe,
-                                     text=M_BTSCAN,
-                                     command=self.refreshFiles
-                                     )
-        self.w_scan.grid(row=1, column=0, padx=2, pady=2)
         # Bouton Play
         self.w_play = tkinter.Button(self.botframe,
                                      text=M_BTPLAY,
-                                     command=self.playSelection
+                                     command=self.playSelection,
+                                     fg='green'
                                      )
-        self.w_play.grid(row=1, column=1, padx=2, pady=2)        
+        self.w_play.grid(row=1, column=0, padx=2, pady=2) 
+        # Bouton Refresh
+        self.w_scan = tkinter.Button(self.botframe,
+                                     text=M_BTSCAN,
+                                     command=self.refreshFiles,
+                                     fg='red'
+                                     )
+        self.w_scan.grid(row=1, column=1, padx=2, pady=2)       
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
                                      text=M_BTHELP,
