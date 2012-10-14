@@ -57,7 +57,7 @@ DBADD = "INSERT INTO files VALUES (?, ?)"
 DBDROP = "DROP TABLE files"
 
 # DBALL - Requête SQL pour lister toutes les lignes de "files" :
-DBALL = "SELECT * FROM files"
+DBALL = "SELECT * FROM files ORDER BY file"
 
 # DEBUG - Mode debug (0 / 1) :
 DEBUG=1
@@ -165,11 +165,15 @@ class Player(object):
 
     def displayFiles(self):
         """Affiche la liste des fichiers"""
-        for file, path in self.files.items():
+        liste = list()
+        for f, p in self.files.items():
+            liste.append(f)
+        liste.sort(key=str.lower)
+        for file in liste:
             if DEBUG:
                 print(file)
-            self.w_files.insert(tkinter.END, file)
-            
+            self.w_files.insert(tkinter.END, file)      
+        
     def refreshFiles(self):
         """Rafraichit la liste des fichiers"""
         self.files = {}
