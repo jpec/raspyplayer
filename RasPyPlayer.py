@@ -36,16 +36,19 @@ import sqlite3
 # PARAMETRAGE PROGRAMME                                                   #
 #-------------------------------------------------------------------------#
 # PATH - Chemin vers le dossier racine contenant les vidéos :
-PATH="/home/pi"
+PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
-OMXCMD="lxterminal --command \"omxplayer -o hdmi '{0}'\""
+OMXCMD = "lxterminal --command \"omxplayer -o hdmi '{0}'\""
 
 # EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
-EXT=[".avi", ".mpg", ".mp4", ".wmv"]
+EXT = [".avi", ".mpg", ".mp4", ".wmv"]
+
+# EXC - Répertoires à exclure de la recherche des vidéos :
+EXC = ["Backup", "Subtitles"]
 
 # DB - Nom base de données locale :
-DB="RasPyPlayer.sqlite3"
+DB = "RasPyPlayer.sqlite3"
 
 # DBCREATE - Requête SQL pour créer la table "files" :
 DBCREATE = "CREATE TABLE files (file, path)"
@@ -62,8 +65,8 @@ DBALL = "SELECT * FROM files ORDER BY file"
 # DBSRC - Requête SQL pour rechercher des lignes dans "files" :
 DBSRC = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
 
-# DEBUG - Mode debug (0 / 1) :
-DEBUG=0
+# DEBUG - Mode debug (0 - off / 1 - on) :
+DEBUG = 0
 
 #-------------------------------------------------------------------------#
 # CHAINES                                                                 #
@@ -144,11 +147,13 @@ class Player(object):
             print(M_SCAN.format(path))
         for file in os.listdir(path):
             filepath = path+"/"+file
-            if len(file) > 4 and file[-4: len(file)] in EXT:
+            if len(file) > 4 and file[-4: len(file)] in EXT \
+               and file[0:1] != ".":
                 # Si c'est un fichier vidéo alors on l'ajoute
                 self.execDB(DBADD, (os.path.basename(file), filepath))
-            elif os.path.isdir(filepath):
-                # Si c'est un répertoire alors on le scanne
+            elif os.path.isdir(filepath) and not file in EXC:
+                # Si c'est un répertoire et qu'il n'est pas
+                # dans les exclusions alors on le scanne
                 self.scanFiles(filepath)
     
     def searchFiles(self):
