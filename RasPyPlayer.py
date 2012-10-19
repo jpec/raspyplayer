@@ -45,7 +45,12 @@ OMXCMD = "lxterminal --command \"omxplayer -o hdmi '{0}'\""
 EXT = [".avi", ".mpg", ".mp4", ".wmv"]
 
 # EXC - Répertoires à exclure de la recherche des vidéos :
-EXC = ["Backup", "Subtitles"]
+EXC = ["Backup",
+       "Musique",
+       "MacBookPro",
+       "Temporary Items",
+       "MacBook Pro de Julien.sparsebundle",
+       "A VOIR"]
 
 # DB - Nom base de données locale :
 DB = "RasPyPlayer.sqlite3"
