@@ -75,18 +75,98 @@ DBSRC = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
 DEBUG = 0
 
 #-------------------------------------------------------------------------#
-# CHAINES                                                                 #
+# CHAINES / TRADUCTIONS                                                   #
 #-------------------------------------------------------------------------#
-M_TITLE = "RasPyPlayer"
-M_INIT = "Initialisation de la base de données"
-M_SCAN = "Scanning : {0}"
-M_LIST = "Listing :"
-M_BTSCAN = "Scanner"
-M_BTPLAY = "Lecture"
-M_BTHELP = "Aide"
-M_BTQUIT = "Quitter"
-M_BTSEARCH = "Go"
-M_SEARCH = "Recherche :"
+
+# Langues disponibles :
+FR = "fr"
+EN = "en"
+
+# Langue utilisée :
+LANG = EN
+
+# Chaines :
+M_TITLE = {}
+M_TITLE[FR] = "RasPyPlayer"
+M_TITLE[EN] = "RasPyPlayer"
+
+M_INIT = {}
+M_INIT[FR] = "Initialisation de la base de données"
+M_INIT[EN] = "Database init"
+
+M_SCAN = {}
+M_SCAN[FR] = "Scanning : {0}"
+M_SCAN[EN] = "Scanning : {0}"
+
+M_LIST = {}
+M_LIST[FR] = "Listing :"
+M_LIST[EN] = "Listing :"
+
+M_BTSCAN = {}
+M_BTSCAN[FR] = "Scanner"
+M_BTSCAN[EN] = "Scan"
+
+M_BTPLAY = {}
+M_BTPLAY[FR] = "Lecture"
+M_BTPLAY[EN] = "Play"
+
+M_BTHELP = {}
+M_BTHELP[FR] = "Aide"
+M_BTHELP[EN] = "Help"
+
+M_BTQUIT = {}
+M_BTQUIT[FR] = "Quitter"
+M_BTQUIT[EN] = "Quit"
+
+M_BTSEARCH = {}
+M_BTSEARCH[FR] = "Chercher"
+M_BTSEARCH[EN] = "Search"
+
+M_SEARCH = {}
+M_SEARCH[FR] = "Recherche :"
+M_SEARCH[EN] = "Search :"
+
+M_HLP = {}
+M_HLP[FR] = "RasPyPlayer, v{0}\n"
+M_HLP[FR] += "Auteur : Julien Pecqueur (JPEC)\n"
+M_HLP[FR] += "Email : jpec@julienpecqueur.net\n"
+M_HLP[FR] += "Site : http://julienpecqueur.net\n"
+M_HLP[FR] += "Sources : https://github.com/jpec/RasPyPlayer\n"
+M_HLP[FR] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
+M_HLP[FR] += "License : GPL\n"
+M_HLP[FR] += "\n"
+M_HLP[FR] += "Raccourcis clavier pendant la lecture :\n"
+M_HLP[FR] += "n : Sous-titre précédent\n"
+M_HLP[FR] += "m : Sous-titre suivant\n"
+M_HLP[FR] += "s : Bascule de sous-titre\n"
+M_HLP[FR] += "q : Quitte le lecteur\n"
+M_HLP[FR] += "p : Pause/Reprise (espace)\n"
+M_HLP[FR] += "- : Baisse le volume\n"
+M_HLP[FR] += "+ : Monte le volume\n"
+M_HLP[FR] += "Left : Seek -30\n"
+M_HLP[FR] += "Right : Seek +30\n"
+M_HLP[FR] += "Down : Seek -600\n"
+M_HLP[FR] += "Up : Seek +600\n"
+M_HLP[EN] = "RasPyPlayer, v{0}\n"
+M_HLP[EN] += "Author : Julien Pecqueur (JPEC)\n"
+M_HLP[EN] += "Email : jpec@julienpecqueur.net\n"
+M_HLP[EN] += "Home : http://julienpecqueur.net\n"
+M_HLP[EN] += "Sources : https://github.com/jpec/RasPyPlayer\n"
+M_HLP[EN] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
+M_HLP[EN] += "License : GPL\n"
+M_HLP[EN] += "\n"
+M_HLP[EN] += "Keyboard shortcuts during playback :\n"
+M_HLP[EN] += "n : Previous subtitle\n"
+M_HLP[EN] += "m : Next subtitle\n"
+M_HLP[EN] += "s : Toggle subtitle\n"
+M_HLP[EN] += "q : Quit playback\n"
+M_HLP[EN] += "p : Pause/Resume (space)\n"
+M_HLP[EN] += "- : Lower volume\n"
+M_HLP[EN] += "+ : Higher volume\n"
+M_HLP[EN] += "Left : Seek -30\n"
+M_HLP[EN] += "Right : Seek +30\n"
+M_HLP[EN] += "Down : Seek -600\n"
+M_HLP[EN] += "Up : Seek +600\n"
 
 #-------------------------------------------------------------------------#
 # DEFINITION DES CLASSES                                                  #
@@ -118,7 +198,7 @@ class Player(object):
     def initDB(self):
         """Initialisation de la base de données"""
         if DEBUG:
-            print(M_INIT)
+            print(M_INIT[LANG])
         if self.topDB:
             self.execDB(DBDROP, False)
         self.execDB(DBCREATE, False)
@@ -150,7 +230,7 @@ class Player(object):
     def scanFiles(self, path):
         """Scan les répertoires et alimente la base de données"""
         if DEBUG:
-            print(M_SCAN.format(path))
+            print(M_SCAN[LANG].format(path))
         for file in os.listdir(path):
             filepath = path+"/"+file
             if len(file) > 4 and file[-4: len(file)] in EXT \
@@ -178,7 +258,7 @@ class Player(object):
         if not self.topDB:
             self.initDB()
         if DEBUG:
-            print(M_LIST)
+            print(M_LIST[LANG])
         if self.search:
             self.execDB(DBSRC, self.search)
         else:
@@ -227,7 +307,7 @@ class Player(object):
     def creerGui(self):
         """Construction de la fenêtre"""
         self.root = tkinter.Tk()
-        self.root.title(M_TITLE)
+        self.root.title(M_TITLE[LANG])
         # Centrage fenêtre
         w = 800
         h = 600
@@ -240,13 +320,13 @@ class Player(object):
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
         # Input recherche
-        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH)
+        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH[LANG])
         self.w_label.grid(row=1, column=0, padx=2, pady=2)
         self.w_search = tkinter.Entry(self.topframe)
         self.w_search.grid(row=1, column=1, padx=2, pady=2)
         # Bouton rechercher
         self.w_exec = tkinter.Button(self.topframe,
-                                     text=M_BTSEARCH,
+                                     text=M_BTSEARCH[LANG],
                                      command=self.searchFiles
                                      )
         self.w_exec.grid(row=1, column=2, padx=2, pady=2)
@@ -265,54 +345,34 @@ class Player(object):
         self.botframe.pack({"side": "left"})
         # Bouton Play
         self.w_play = tkinter.Button(self.botframe,
-                                     text=M_BTPLAY,
+                                     text=M_BTPLAY[LANG],
                                      command=self.playSelection,
                                      fg='green'
                                      )
         self.w_play.grid(row=1, column=0, padx=2, pady=2) 
         # Bouton Refresh
         self.w_scan = tkinter.Button(self.botframe,
-                                     text=M_BTSCAN,
+                                     text=M_BTSCAN[LANG],
                                      command=self.refreshFiles,
                                      fg='red'
                                      )
         self.w_scan.grid(row=1, column=1, padx=2, pady=2)       
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
-                                     text=M_BTHELP,
+                                     text=M_BTHELP[LANG],
                                      command=self.displayHelp
                                      )
         self.w_help.grid(row=1, column=2, padx=2, pady=2)
         # Bouton Quit
         self.w_quit = tkinter.Button(self.botframe,
-                                     text=M_BTQUIT,
+                                     text=M_BTQUIT[LANG],
                                      command=self.closePlayer
                                      )
         self.w_quit.grid(row=1, column=3, padx=2, pady=2)
         
     def displayHelp(self):
         """Affiche l'aide"""
-        msg = "RasPyPlayer, v{0}\n"
-        msg += "Auteur : Julien Pecqueur (JPEC)\n"
-        msg += "Email : jpec@julienpecqueur.net\n"
-        msg += "Site : http://julienpecqueur.net\n"
-        msg += "Sources : https://github.com/jpec/RasPyPlayer\n"
-        msg += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
-        msg += "License : GNUGPL\n"
-        msg += "\n"
-        msg += "Raccourcis clavier pendant la lecture :\n"
-        msg += "n : Sous-titre précédent\n"
-        msg += "m : Sous-titre suivant\n"
-        msg += "s : Bascule de sous-titre\n"
-        msg += "q : Quitte le lecteur\n"
-        msg += "p : Pause/Reprise (espace)\n"
-        msg += "- : Baisse le volume\n"
-        msg += "+ : Monte le volume\n"
-        msg += "Left : Seek -30\n"
-        msg += "Right : Seek +30\n"
-        msg += "Down : Seek -600\n"
-        msg += "Up : Seek +600\n"
-        tkinter.messagebox.showinfo("Aide", msg.format(VERSION))
+        tkinter.messagebox.showinfo(M_TITLE[LANG], M_HLP[LANG].format(VERSION))
         
     def closePlayer(self):
         """Quitte l'application"""
