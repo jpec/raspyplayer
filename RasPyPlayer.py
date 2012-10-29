@@ -43,13 +43,14 @@ PATH = "/home/pi/nas"
 OMXCMD = "lxterminal --command \"omxplayer -o hdmi '{0}'\""
 
 # EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
-EXT = [".avi", ".mpg", ".mp4", ".wmv"]
+EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
 
 # EXC - Répertoires à exclure de la recherche des vidéos :
 EXC = ["Backup",
        "Musique",
        "MacBookPro",
        "Temporary Items",
+       ".TemporaryItems",
        "MacBook Pro de Julien.sparsebundle",
        "A VOIR"]
 
@@ -83,7 +84,7 @@ FR = "fr"
 EN = "en"
 
 # Langue utilisée :
-LANG = EN
+LANG = FR
 
 # Chaines :
 M_TITLE = {}
@@ -197,8 +198,7 @@ class Player(object):
 
     def initDB(self):
         """Initialisation de la base de données"""
-        if DEBUG:
-            print(M_INIT[LANG])
+        print(M_INIT[LANG])
         if self.topDB:
             self.execDB(DBDROP, False)
         self.execDB(DBCREATE, False)
@@ -229,8 +229,7 @@ class Player(object):
 
     def scanFiles(self, path):
         """Scan les répertoires et alimente la base de données"""
-        if DEBUG:
-            print(M_SCAN[LANG].format(path))
+        print(M_SCAN[LANG].format(path))
         for file in os.listdir(path):
             filepath = path+"/"+file
             if len(file) > 4 and file[-4: len(file)] in EXT \
@@ -257,8 +256,7 @@ class Player(object):
         """Liste les fichiers présents dans la base"""
         if not self.topDB:
             self.initDB()
-        if DEBUG:
-            print(M_LIST[LANG])
+        print(M_LIST[LANG])
         if self.search:
             self.execDB(DBSRC, self.search)
         else:
@@ -281,8 +279,6 @@ class Player(object):
             liste.append(f)
         liste.sort(key=str.lower)
         for file in liste:
-            if DEBUG:
-                print(file)
             self.w_files.insert(tkinter.END, file)
 
     def initFiles(self):
