@@ -104,28 +104,34 @@ M_LIST[FR] = "Listing :"
 M_LIST[EN] = "Listing :"
 
 M_BTSCAN = {}
-M_BTSCAN[FR] = "Scanner"
-M_BTSCAN[EN] = "Scan"
+M_BTSCAN[FR] = "Scanner (F5)"
+M_BTSCAN[EN] = "Scan (F5)"
 
 M_BTPLAY = {}
-M_BTPLAY[FR] = "Lecture"
-M_BTPLAY[EN] = "Play"
+M_BTPLAY[FR] = "Lecture (F4)"
+M_BTPLAY[EN] = "Play (F4)"
 
 M_BTHELP = {}
-M_BTHELP[FR] = "Aide"
-M_BTHELP[EN] = "Help"
+M_BTHELP[FR] = "Aide (F1)"
+M_BTHELP[EN] = "Help (F1)"
 
 M_BTQUIT = {}
 M_BTQUIT[FR] = "Quitter"
 M_BTQUIT[EN] = "Quit"
 
 M_BTSEARCH = {}
-M_BTSEARCH[FR] = "Chercher"
-M_BTSEARCH[EN] = "Search"
+M_BTSEARCH[FR] = "Chercher (F3)"
+M_BTSEARCH[EN] = "Search (F3)"
 
 M_SEARCH = {}
 M_SEARCH[FR] = "Recherche :"
 M_SEARCH[EN] = "Search :"
+
+M_ASKSCAN = {}
+M_ASKSCAN[FR] = "Voulez vous rafraichir la base de données ?\n"
+M_ASKSCAN[FR] += "Cela peut prendre plusieurs minutes..."
+M_ASKSCAN[EN] = "Do you want to refresh database ?\n"
+M_ASKSCAN[EN] += "It can take few minutes..."
 
 M_HLP = {}
 M_HLP[FR] = "RasPyPlayer, v{0}\n"
@@ -135,6 +141,12 @@ M_HLP[FR] += "Site : http://julienpecqueur.net\n"
 M_HLP[FR] += "Sources : https://github.com/jpec/RasPyPlayer\n"
 M_HLP[FR] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
 M_HLP[FR] += "License : GPL\n"
+M_HLP[FR] += "\n"
+M_HLP[FR] += "Raccourcis clavier dans RasPyPlayer :\n"
+M_HLP[FR] += "F1 : Aide\n"
+M_HLP[FR] += "F3 : Recherche\n"
+M_HLP[FR] += "F4 : Lecture\n"
+M_HLP[FR] += "F5 : Scanner\n"
 M_HLP[FR] += "\n"
 M_HLP[FR] += "Raccourcis clavier pendant la lecture :\n"
 M_HLP[FR] += "n : Sous-titre précédent\n"
@@ -155,6 +167,12 @@ M_HLP[EN] += "Home : http://julienpecqueur.net\n"
 M_HLP[EN] += "Sources : https://github.com/jpec/RasPyPlayer\n"
 M_HLP[EN] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
 M_HLP[EN] += "License : GPL\n"
+M_HLP[EN] += "\n"
+M_HLP[EN] += "Keyboard shortcuts in RasPyPlayer :\n"
+M_HLP[EN] += "F1 : Help\n"
+M_HLP[EN] += "F3 : Search\n"
+M_HLP[EN] += "F4 : Play\n"
+M_HLP[EN] += "F5 : Refresh\n"
 M_HLP[EN] += "\n"
 M_HLP[EN] += "Keyboard shortcuts during playback :\n"
 M_HLP[EN] += "n : Previous subtitle\n"
@@ -289,9 +307,11 @@ class Player(object):
             
     def refreshFiles(self):
         """Rafraichit la liste des fichiers"""
-        self.initFiles()
-        self.refreshBase()
-        self.displayFiles()
+        res = tkinter.messagebox.askokcancel(M_TITLE[LANG], M_ASKSCAN[LANG])
+        if res:
+            self.initFiles()
+            self.refreshBase()
+            self.displayFiles()
         
     def playSelection(self):
         """Lire le fichier sélectionné"""
@@ -365,7 +385,28 @@ class Player(object):
                                      command=self.closePlayer
                                      )
         self.w_quit.grid(row=1, column=3, padx=2, pady=2)
+        # Bindings
+        self.root.bind('<F4>', self.evtPlay)
+        self.root.bind('<F3>', self.evtSearch)
+        self.root.bind('<F5>', self.evtScan)
+        self.root.bind('<F1>', self.evtHelp)
+
+    def evtHelp(self, bind):
+        """Event Help"""
+        self.displayHelp()
         
+    def evtScan(self, bind):
+        """Event scan"""
+        self.refreshFiles()
+        
+    def evtPlay(self, bind):
+        """Event lecture"""
+        self.playSelection()
+
+    def evtSearch(self, bind):
+        """Event recherche"""
+        self.searchFiles()
+    
     def displayHelp(self):
         """Affiche l'aide"""
         tkinter.messagebox.showinfo(M_TITLE[LANG], M_HLP[LANG].format(VERSION))
