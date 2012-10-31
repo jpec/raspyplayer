@@ -358,7 +358,8 @@ class Player(object):
         self.midframe = tkinter.Frame(self.root, borderwidth=2)
         self.midframe.pack(fill=tkinter.BOTH, expand=1)
         # Liste des fichiers
-        self.w_files = tkinter.Listbox(self.midframe)
+        self.w_files = tkinter.Listbox(self.midframe,
+                                       selectmode=tkinter.EXTENDED)
         self.w_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
         self.w_scroll = tkinter.Scrollbar(self.midframe,
                                           command=self.w_files.yview)
