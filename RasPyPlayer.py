@@ -40,7 +40,9 @@ import sqlite3
 PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
-OMXCMD = "lxterminal --command \"omxplayer -o hdmi '{0}'\""
+CMD = "lxterminal --command \"{0}\""
+OMXCMD1 = "omxplayer -o hdmi '{0}'"
+OMXCMD2 = "omxplayer -o hdmi --subtitles '{0}' '{1}'"
 
 # EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
 EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
@@ -286,9 +288,15 @@ class Player(object):
 
     def playFile(self, file):
         """Joue le fichier passé en paramètre"""
+        sub = file[0:-3] + "srt"
+        if os.path.isfile(sub):
+            cmd = OMXCMD2.format(sub, file)
+        else:
+            cmd = OMXCMD1.format(file)
+        cmd = CMD.format(cmd)
         if DEBUG:
-            print(OMXCMD.format(file))
-        os.system(OMXCMD.format(file))
+            print(cmd)
+        os.system(cmd)
 
     def displayFiles(self):
         """Affiche la liste des fichiers"""
