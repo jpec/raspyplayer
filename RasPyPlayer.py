@@ -41,8 +41,11 @@ PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
 CMD = "lxterminal --command \"{0}\""
-OMXCMD1 = "omxplayer -o hdmi '{0}'"
-OMXCMD2 = "omxplayer -o hdmi --subtitles '{0}' '{1}'"
+OMXCMD1 = "omxplayer '{0}'"
+OMXCMD2 = "omxplayer --subtitles '{0}' '{1}'"
+
+# OMXSRT - Gestion des sous-titres SRT (nécessite patch omxplayer) :
+OMXSRT = 0 
 
 # EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
 EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
@@ -50,6 +53,7 @@ EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
 # EXC - Répertoires à exclure de la recherche des vidéos :
 EXC = ["Backup",
        "Musique",
+       "Musique_old",
        "MacBookPro",
        "Temporary Items",
        ".TemporaryItems",
@@ -289,7 +293,7 @@ class Player(object):
     def playFile(self, file):
         """Joue le fichier passé en paramètre"""
         sub = file[0:-3] + "srt"
-        if os.path.isfile(sub):
+        if if OMXSRT and os.path.isfile(sub):
             cmd = OMXCMD2.format(sub, file)
         else:
             cmd = OMXCMD1.format(file)
