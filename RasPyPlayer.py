@@ -7,7 +7,7 @@ VERSION = "0.1-dev"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
-# Site : http://julienpecqueur.net
+# Site : http://raspyplayer.org
 # Sources : https://github.com/jpec/RasPyPlayer
 # Bugs : https://github.com/jpec/RasPyPlayer/issues
 # License :
@@ -143,7 +143,7 @@ M_HLP = {}
 M_HLP[FR] = "RasPyPlayer, v{0}\n"
 M_HLP[FR] += "Auteur : Julien Pecqueur (JPEC)\n"
 M_HLP[FR] += "Email : jpec@julienpecqueur.net\n"
-M_HLP[FR] += "Site : http://julienpecqueur.net\n"
+M_HLP[FR] += "Site : http://raspyplayer.org\n"
 M_HLP[FR] += "Sources : https://github.com/jpec/RasPyPlayer\n"
 M_HLP[FR] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
 M_HLP[FR] += "License : GPL\n"
@@ -169,7 +169,7 @@ M_HLP[FR] += "Up : Seek +600\n"
 M_HLP[EN] = "RasPyPlayer, v{0}\n"
 M_HLP[EN] += "Author : Julien Pecqueur (JPEC)\n"
 M_HLP[EN] += "Email : jpec@julienpecqueur.net\n"
-M_HLP[EN] += "Home : http://julienpecqueur.net\n"
+M_HLP[EN] += "Home : http://raspyplayer.org\n"
 M_HLP[EN] += "Sources : https://github.com/jpec/RasPyPlayer\n"
 M_HLP[EN] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
 M_HLP[EN] += "License : GPL\n"
