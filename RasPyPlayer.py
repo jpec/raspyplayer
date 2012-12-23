@@ -31,6 +31,7 @@ VERSION = "0.1-dev"
 import os
 import tkinter
 import tkinter.messagebox
+import tkinter.font
 import sqlite3
 
 #-------------------------------------------------------------------------#
@@ -336,6 +337,7 @@ class Player(object):
         """Construction de la fenêtre"""
         self.root = tkinter.Tk()
         self.root.title(M_TITLE[LANG])
+        font = tkinter.font.Font(self.root, size=20, family='Sans')
         # Centrage fenêtre
         w = 800
         h = 600
@@ -348,14 +350,15 @@ class Player(object):
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
         # Input recherche
-        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH[LANG])
+        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH[LANG], font=font)
         self.w_label.grid(row=1, column=0, padx=2, pady=2)
-        self.w_search = tkinter.Entry(self.topframe)
+        self.w_search = tkinter.Entry(self.topframe, font=font)
         self.w_search.grid(row=1, column=1, padx=2, pady=2)
         # Bouton rechercher
         self.w_exec = tkinter.Button(self.topframe,
                                      text=M_BTSEARCH[LANG],
-                                     command=self.searchFiles
+                                     command=self.searchFiles,
+                                     font=font
                                      )
         self.w_exec.grid(row=1, column=2, padx=2, pady=2)
         # Zone liste fichiers
@@ -363,7 +366,8 @@ class Player(object):
         self.midframe.pack(fill=tkinter.BOTH, expand=1)
         # Liste des fichiers
         self.w_files = tkinter.Listbox(self.midframe,
-                                       selectmode=tkinter.EXTENDED)
+                                       selectmode=tkinter.EXTENDED,
+                                       font=font)
         self.w_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
         self.w_scroll = tkinter.Scrollbar(self.midframe,
                                           command=self.w_files.yview)
@@ -376,26 +380,26 @@ class Player(object):
         self.w_play = tkinter.Button(self.botframe,
                                      text=M_BTPLAY[LANG],
                                      command=self.playSelection,
-                                     fg='green'
+                                     fg='green', font=font
                                      )
         self.w_play.grid(row=1, column=0, padx=2, pady=2) 
         # Bouton Refresh
         self.w_scan = tkinter.Button(self.botframe,
                                      text=M_BTSCAN[LANG],
                                      command=self.refreshFiles,
-                                     fg='red'
+                                     fg='red', font=font
                                      )
         self.w_scan.grid(row=1, column=1, padx=2, pady=2)       
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
                                      text=M_BTHELP[LANG],
-                                     command=self.displayHelp
+                                     command=self.displayHelp, font=font
                                      )
         self.w_help.grid(row=1, column=2, padx=2, pady=2)
         # Bouton Quit
         self.w_quit = tkinter.Button(self.botframe,
                                      text=M_BTQUIT[LANG],
-                                     command=self.closePlayer
+                                     command=self.closePlayer, font=font
                                      )
         self.w_quit.grid(row=1, column=3, padx=2, pady=2)
         # Bindings
