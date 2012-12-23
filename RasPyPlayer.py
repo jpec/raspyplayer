@@ -293,7 +293,7 @@ class Player(object):
     def playFile(self, file):
         """Joue le fichier passé en paramètre"""
         sub = file[0:-3] + "srt"
-        if if OMXSRT and os.path.isfile(sub):
+        if OMXSRT and os.path.isfile(sub):
             cmd = OMXCMD2.format(sub, file)
         else:
             cmd = OMXCMD1.format(file)
@@ -344,7 +344,7 @@ class Player(object):
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
-	# Zone recherche
+        # Zone recherche
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
         # Input recherche
