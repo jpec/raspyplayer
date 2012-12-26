@@ -1,0 +1,10 @@
+Package: raspyplayer
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: all
+Depends: bash, python3, tk
+Maintainer: Julien Pecqueur <jpec@julienpecqueur.net>
+Description: Media player for the Raspberry Pi.
+Homepage: http://raspyplayer.org
+
