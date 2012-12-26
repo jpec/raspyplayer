@@ -350,7 +350,10 @@ class Player(object):
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
         # Input recherche
-        self.w_label = tkinter.Label(self.topframe, text=M_SEARCH[LANG], font=font)
+        self.w_label = tkinter.Label(self.topframe,
+                                     text=M_SEARCH[LANG],
+                                     font=font
+                                     )
         self.w_label.grid(row=1, column=0, padx=2, pady=2)
         self.w_search = tkinter.Entry(self.topframe, font=font)
         self.w_search.grid(row=1, column=1, padx=2, pady=2)
@@ -367,10 +370,12 @@ class Player(object):
         # Liste des fichiers
         self.w_files = tkinter.Listbox(self.midframe,
                                        selectmode=tkinter.EXTENDED,
-                                       font=font)
+                                       font=font
+                                       )
         self.w_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
         self.w_scroll = tkinter.Scrollbar(self.midframe,
-                                          command=self.w_files.yview)
+                                          command=self.w_files.yview
+                                          )
         self.w_files.configure(yscrollcommand=self.w_scroll.set)
         self.w_scroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         # Groupe boutons
@@ -380,26 +385,28 @@ class Player(object):
         self.w_play = tkinter.Button(self.botframe,
                                      text=M_BTPLAY[LANG],
                                      command=self.playSelection,
-                                     fg='green', font=font
+                                     font=font
                                      )
         self.w_play.grid(row=1, column=0, padx=2, pady=2) 
         # Bouton Refresh
         self.w_scan = tkinter.Button(self.botframe,
                                      text=M_BTSCAN[LANG],
                                      command=self.refreshFiles,
-                                     fg='red', font=font
+                                     font=font
                                      )
         self.w_scan.grid(row=1, column=1, padx=2, pady=2)       
         # Bouton Help
         self.w_help = tkinter.Button(self.botframe,
                                      text=M_BTHELP[LANG],
-                                     command=self.displayHelp, font=font
+                                     command=self.displayHelp,
+                                     font=font
                                      )
         self.w_help.grid(row=1, column=2, padx=2, pady=2)
         # Bouton Quit
         self.w_quit = tkinter.Button(self.botframe,
                                      text=M_BTQUIT[LANG],
-                                     command=self.closePlayer, font=font
+                                     command=self.closePlayer,
+                                     font=font
                                      )
         self.w_quit.grid(row=1, column=3, padx=2, pady=2)
         # Bindings
@@ -407,6 +414,8 @@ class Player(object):
         self.root.bind('<F3>', self.evtSearch)
         self.root.bind('<F5>', self.evtScan)
         self.root.bind('<F1>', self.evtHelp)
+        self.w_files.bind("<Return>", self.evtPlay)
+        self.w_search.bind("<Return>", self.evtSearch)
 
     def evtHelp(self, bind):
         """Event Help"""
