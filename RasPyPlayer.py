@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "0.1-dev"
+VERSION = "1.0"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -91,7 +91,7 @@ FR = "fr"
 EN = "en"
 
 # Langue utilisée :
-LANG = FR
+LANG = EN
 
 # Chaines :
 M_TITLE = {}
@@ -339,8 +339,8 @@ class Player(object):
         self.root.title(M_TITLE[LANG])
         font = tkinter.font.Font(self.root, size=20, family='Sans')
         # Centrage fenêtre
-        w = 800
-        h = 600
+        w = 1920
+        h = 1080
         ws = self.root.winfo_screenwidth()
         hs = self.root.winfo_screenheight()
         x = (ws/2) - (w/2)
