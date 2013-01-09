@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "1.0"
+VERSION = "1.1"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -227,6 +227,7 @@ class Player(object):
         if self.topDB:
             self.execDB(DBDROP, False)
         self.execDB(DBCREATE, False)
+        self.commitDB()
         self.topDB = True
 
     def closeDB(self):
@@ -243,13 +244,17 @@ class Player(object):
                 self.curDB.execute(sql, bind)
             else:
                 self.curDB.execute(sql)
-            self.conDB.commit() 
+
+    def commitDB(self):
+        """Commit"""
+        self.conDB.commit()
 
     def refreshBase(self):
         """Rafraîchi la base de données"""
         if not self.topDB:
             self.initDB()
         self.scanFiles(self.path)
+        self.commitDB()
         self.listFiles()
 
     def scanFiles(self, path):
