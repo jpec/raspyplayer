@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "1.1"
+VERSION = "1.2"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -41,9 +41,8 @@ import sqlite3
 PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
-CMD = "lxterminal --command \"{0}\""
-OMXCMD1 = "omxplayer '{0}'"
-OMXCMD2 = "omxplayer --subtitles '{0}' '{1}'"
+OMXCMD1 = 'omxplayer "{0}"'
+OMXCMD2 = 'omxplayer --subtitles "{0}" "{1}"'
 
 # OMXSRT - Gestion des sous-titres SRT (nécessite patch omxplayer) :
 OMXSRT = 0 
@@ -292,8 +291,6 @@ class Player(object):
         else:
             self.execDB(DBALL, False)
         for file, path in self.curDB:
-            if DEBUG:
-                print(file, path)
             self.files[file] = path
 
     def playFile(self, file):
@@ -303,9 +300,7 @@ class Player(object):
             cmd = OMXCMD2.format(sub, file)
         else:
             cmd = OMXCMD1.format(file)
-        cmd = CMD.format(cmd)
-        if DEBUG:
-            print(cmd)
+        print(cmd)
         os.system(cmd)
 
     def displayFiles(self):
@@ -344,13 +339,9 @@ class Player(object):
         self.root.title(M_TITLE[LANG])
         font = tkinter.font.Font(self.root, size=20, family='Sans')
         # Centrage fenêtre
-        w = 1920
-        h = 1080
-        ws = self.root.winfo_screenwidth()
-        hs = self.root.winfo_screenheight()
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        w = self.root.winfo_screenwidth()
+        h = self.root.winfo_screenheight()
+        self.root.geometry('%dx%d+%d+%d' % (w, h, 0, 0))
         # Zone recherche
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
