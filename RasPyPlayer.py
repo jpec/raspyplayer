@@ -41,9 +41,8 @@ import sqlite3
 PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
-CMD = "lxterminal --command \"{0}\""
-OMXCMD1 = "omxplayer '{0}'"
-OMXCMD2 = "omxplayer --subtitles '{0}' '{1}'"
+OMXCMD1 = 'omxplayer "{0}"'
+OMXCMD2 = 'omxplayer --subtitles "{0}" "{1}"'
 
 # OMXSRT - Gestion des sous-titres SRT (nécessite patch omxplayer) :
 OMXSRT = 0 
@@ -292,8 +291,6 @@ class Player(object):
         else:
             self.execDB(DBALL, False)
         for file, path in self.curDB:
-            if DEBUG:
-                print(file, path)
             self.files[file] = path
 
     def playFile(self, file):
@@ -303,9 +300,7 @@ class Player(object):
             cmd = OMXCMD2.format(sub, file)
         else:
             cmd = OMXCMD1.format(file)
-        cmd = CMD.format(cmd)
-        if DEBUG:
-            print(cmd)
+        print(cmd)
         os.system(cmd)
 
     def displayFiles(self):
