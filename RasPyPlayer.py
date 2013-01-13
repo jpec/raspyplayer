@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "1.1"
+VERSION = "1.2"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -344,13 +344,9 @@ class Player(object):
         self.root.title(M_TITLE[LANG])
         font = tkinter.font.Font(self.root, size=20, family='Sans')
         # Centrage fenêtre
-        w = 1920
-        h = 1080
-        ws = self.root.winfo_screenwidth()
-        hs = self.root.winfo_screenheight()
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        w = self.root.winfo_screenwidth()
+        h = self.root.winfo_screenheight()
+        self.root.geometry('%dx%d+%d+%d' % (w, h, 0, 0))
         # Zone recherche
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
