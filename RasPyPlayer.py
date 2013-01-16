@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "1.2"
+VERSION = "1.3"
 #-------------------------------------------------------------------------#
 # Auteur : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -41,8 +41,8 @@ import sqlite3
 PATH = "/home/pi/nas"
 
 # OMXCMD - Commande pour lancer le player omxplayer :
-OMXCMD1 = 'omxplayer "{0}"'
-OMXCMD2 = 'omxplayer --subtitles "{0}" "{1}"'
+OMXCMD1 = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
+OMXCMD2 = 'lxterminal --command \"omxplayer --subtitles \\"{0}\\" \\"{1}\\"\"'
 
 # OMXSRT - Gestion des sous-titres SRT (nécessite patch omxplayer) :
 OMXSRT = 0 
@@ -341,7 +341,7 @@ class Player(object):
         # Centrage fenêtre
         w = self.root.winfo_screenwidth()
         h = self.root.winfo_screenheight()
-        self.root.geometry('%dx%d+%d+%d' % (w, h, 0, 0))
+        self.root.geometry('%dx%d+%d+%d' % (w-2, h-60, 0, 0))
         # Zone recherche
         self.topframe = tkinter.Frame(self.root, borderwidth=2)
         self.topframe.pack({"side": "top"})
