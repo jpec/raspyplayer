@@ -3,13 +3,14 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "1.3"
+VERSION = "2.0-dev"
 #-------------------------------------------------------------------------#
-# Auteur : Julien Pecqueur (JPEC)
-# Email : jpec@julienpecqueur.net
-# Site : http://raspyplayer.org
+# Author :Julien Pecqueur (JPEC)
+# Email :   jpec@julienpecqueur.net
+# Site :    http://raspyplayer.org
 # Sources : https://github.com/jpec/RasPyPlayer
-# Bugs : https://github.com/jpec/RasPyPlayer/issues
+# Bugs :    https://github.com/jpec/RasPyPlayer/issues
+# 
 # License :
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,31 +27,26 @@ VERSION = "1.3"
 #-------------------------------------------------------------------------#
 
 #-------------------------------------------------------------------------#
-# IMPORTATION DES MODULES                                                 #
+# PARAMS
 #-------------------------------------------------------------------------#
-import os
-import tkinter
-import tkinter.messagebox
-import tkinter.font
-import sqlite3
 
-#-------------------------------------------------------------------------#
-# PARAMETRAGE PROGRAMME                                                   #
-#-------------------------------------------------------------------------#
-# PATH - Chemin vers le dossier racine contenant les vidéos :
-PATH = "/home/pi/nas"
+# DEBUG - Debug mode (False / True) :
+DEBUG = False
 
-# OMXCMD - Commande pour lancer le player omxplayer :
+# DB - Database file
+DB = "RasPyPlayer.sqlite3"
+
+# OMXCMD - Commands to launch omxplayer :
 OMXCMD1 = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
 OMXCMD2 = 'lxterminal --command \"omxplayer --subtitles \\"{0}\\" \\"{1}\\"\"'
 
-# OMXSRT - Gestion des sous-titres SRT (nécessite patch omxplayer) :
-OMXSRT = 0 
+# OMXSRT - Omxplayer version can handle subtitles (False / True) :
+OMXSRT = False
 
-# EXT - Extensions des fichiers vidéos à ajouter dans la librairie :
+# EXT - Movies extensions to add in movie database :
 EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
 
-# EXC - Répertoires à exclure de la recherche des vidéos :
+# EXC - Exclude theses directories from movies search :
 EXC = ["Backup",
        "Musique",
        "Musique_old",
@@ -60,241 +56,185 @@ EXC = ["Backup",
        "MacBook Pro de Julien.sparsebundle",
        "A VOIR"]
 
-# DB - Nom base de données locale :
-DB = "RasPyPlayer.sqlite3"
-
-# DBCREATE - Requête SQL pour créer la table "files" :
-DBCREATE = "CREATE TABLE files (file, path)"
-
-# DBADD - Requête SQL pour ajouter une ligne dans "files" :
-DBADD = "INSERT INTO files VALUES (?, ?)"
-
-# DBDROP - Requête SQL pour droper la table "files" :
-DBDROP = "DROP TABLE files"
-
-# DBALL - Requête SQL pour lister toutes les lignes de "files" :
-DBALL = "SELECT * FROM files ORDER BY file"
-
-# DBSRC - Requête SQL pour rechercher des lignes dans "files" :
-DBSRC = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
-
-# DEBUG - Mode debug (0 - off / 1 - on) :
-DEBUG = 0
 
 #-------------------------------------------------------------------------#
-# CHAINES / TRADUCTIONS                                                   #
+# MODULES
 #-------------------------------------------------------------------------#
 
-# Langues disponibles :
-FR = "fr"
-EN = "en"
+from sys import argv
+import os
+import sqlite3
+import tkinter
+import tkinter.messagebox
+import tkinter.font
 
-# Langue utilisée :
-LANG = EN
-
-# Chaines :
-M_TITLE = {}
-M_TITLE[FR] = "RasPyPlayer"
-M_TITLE[EN] = "RasPyPlayer"
-
-M_INIT = {}
-M_INIT[FR] = "Initialisation de la base de données"
-M_INIT[EN] = "Database init"
-
-M_SCAN = {}
-M_SCAN[FR] = "Scanning : {0}"
-M_SCAN[EN] = "Scanning : {0}"
-
-M_LIST = {}
-M_LIST[FR] = "Listing :"
-M_LIST[EN] = "Listing :"
-
-M_BTSCAN = {}
-M_BTSCAN[FR] = "Scanner (F5)"
-M_BTSCAN[EN] = "Scan (F5)"
-
-M_BTPLAY = {}
-M_BTPLAY[FR] = "Lecture (F4)"
-M_BTPLAY[EN] = "Play (F4)"
-
-M_BTHELP = {}
-M_BTHELP[FR] = "Aide (F1)"
-M_BTHELP[EN] = "Help (F1)"
-
-M_BTQUIT = {}
-M_BTQUIT[FR] = "Quitter"
-M_BTQUIT[EN] = "Quit"
-
-M_BTSEARCH = {}
-M_BTSEARCH[FR] = "Chercher (F3)"
-M_BTSEARCH[EN] = "Search (F3)"
-
-M_SEARCH = {}
-M_SEARCH[FR] = "Recherche :"
-M_SEARCH[EN] = "Search :"
-
-M_ASKSCAN = {}
-M_ASKSCAN[FR] = "Voulez vous rafraichir la base de données ?\n"
-M_ASKSCAN[FR] += "Cela peut prendre plusieurs minutes..."
-M_ASKSCAN[EN] = "Do you want to refresh database ?\n"
-M_ASKSCAN[EN] += "It can take few minutes..."
-
-M_HLP = {}
-M_HLP[FR] = "RasPyPlayer, v{0}\n"
-M_HLP[FR] += "Auteur : Julien Pecqueur (JPEC)\n"
-M_HLP[FR] += "Email : jpec@julienpecqueur.net\n"
-M_HLP[FR] += "Site : http://raspyplayer.org\n"
-M_HLP[FR] += "Sources : https://github.com/jpec/RasPyPlayer\n"
-M_HLP[FR] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
-M_HLP[FR] += "License : GPL\n"
-M_HLP[FR] += "\n"
-M_HLP[FR] += "Raccourcis clavier dans RasPyPlayer :\n"
-M_HLP[FR] += "F1 : Aide\n"
-M_HLP[FR] += "F3 : Recherche\n"
-M_HLP[FR] += "F4 : Lecture\n"
-M_HLP[FR] += "F5 : Scanner\n"
-M_HLP[FR] += "\n"
-M_HLP[FR] += "Raccourcis clavier pendant la lecture :\n"
-M_HLP[FR] += "n : Sous-titre précédent\n"
-M_HLP[FR] += "m : Sous-titre suivant\n"
-M_HLP[FR] += "s : Bascule de sous-titre\n"
-M_HLP[FR] += "q : Quitte le lecteur\n"
-M_HLP[FR] += "p : Pause/Reprise (espace)\n"
-M_HLP[FR] += "- : Baisse le volume\n"
-M_HLP[FR] += "+ : Monte le volume\n"
-M_HLP[FR] += "Left : Seek -30\n"
-M_HLP[FR] += "Right : Seek +30\n"
-M_HLP[FR] += "Down : Seek -600\n"
-M_HLP[FR] += "Up : Seek +600\n"
-M_HLP[EN] = "RasPyPlayer, v{0}\n"
-M_HLP[EN] += "Author : Julien Pecqueur (JPEC)\n"
-M_HLP[EN] += "Email : jpec@julienpecqueur.net\n"
-M_HLP[EN] += "Home : http://raspyplayer.org\n"
-M_HLP[EN] += "Sources : https://github.com/jpec/RasPyPlayer\n"
-M_HLP[EN] += "Bugs : https://github.com/jpec/RasPyPlayer/issues\n"
-M_HLP[EN] += "License : GPL\n"
-M_HLP[EN] += "\n"
-M_HLP[EN] += "Keyboard shortcuts in RasPyPlayer :\n"
-M_HLP[EN] += "F1 : Help\n"
-M_HLP[EN] += "F3 : Search\n"
-M_HLP[EN] += "F4 : Play\n"
-M_HLP[EN] += "F5 : Refresh\n"
-M_HLP[EN] += "\n"
-M_HLP[EN] += "Keyboard shortcuts during playback :\n"
-M_HLP[EN] += "n : Previous subtitle\n"
-M_HLP[EN] += "m : Next subtitle\n"
-M_HLP[EN] += "s : Toggle subtitle\n"
-M_HLP[EN] += "q : Quit playback\n"
-M_HLP[EN] += "p : Pause/Resume (space)\n"
-M_HLP[EN] += "- : Lower volume\n"
-M_HLP[EN] += "+ : Higher volume\n"
-M_HLP[EN] += "Left : Seek -30\n"
-M_HLP[EN] += "Right : Seek +30\n"
-M_HLP[EN] += "Down : Seek -600\n"
-M_HLP[EN] += "Up : Seek +600\n"
 
 #-------------------------------------------------------------------------#
-# DEFINITION DES CLASSES                                                  #
+# FUNCTIONS
 #-------------------------------------------------------------------------#
-class Player(object):
-    def __init__(self, path, db):
-        """Constructeur de la classe Player"""
-        self.path = path
+
+def scanFiles(db, path):
+    
+    """Look for movies in path to add in DB."""
+    
+    if DEBUG:
+        print("Scan {0}".format(path))
+    for file in os.listdir(path):
+        filepath = path+"/"+file
+        if len(file) > 4 and file[-4: len(file)] in EXT \
+            and file[0:1] != ".":
+            # File
+            db.addMovie(os.path.basename(file), filepath)
+        elif os.path.isdir(filepath) and not file in EXC \
+            and file[0:1] != ".":
+            # Directory
+            scanFiles(db, filepath)
+
+#-------------------------------------------------------------------------#
+
+#-------------------------------------------------------------------------#
+# CLASSES
+#-------------------------------------------------------------------------#
+
+class Db(object):
+    
+    """DataBase class"""
+    
+    def __init__(self, db):
+        """Initialisation of the DB object"""
         self.db = db
-        self.files = {}
-        self.conDB = False
-        self.curDB = False
-        self.topDB = False
-        self.search = False
-        self.creerGui()
-        self.openDB()
-        self.listFiles()
-        self.displayFiles()
+        self.con = None
+        self.cur = None
+        self.new = False
 
-    def openDB(self):
-        """Ouvre la base de donnée, la créé le cas échéant"""
-        sql = False
-        bind = False
-        if os.path.isfile(self.db):
-            self.topDB = True
-        self.conDB = sqlite3.connect(self.db)
-        self.curDB = self.conDB.cursor()
+    def openDb(self):
+        """Open the DB"""
+        print("*** openDb - opening the database ***")
+        new = False
+        if not os.path.isfile(self.db):
+            new = True
+        self.con = sqlite3.connect(self.db)
+        self.cur = self.con.cursor()
+        if new:
+            self.createDb()
+        return(True)
 
-    def initDB(self):
-        """Initialisation de la base de données"""
-        print(M_INIT[LANG])
-        if self.topDB:
-            self.execDB(DBDROP, False)
-        self.execDB(DBCREATE, False)
-        self.commitDB()
-        self.topDB = True
+    def createDb(self):
+        """Create the DB"""
+        print("*** createDb - Creating the database ***")
+        self.execSql("CREATE TABLE files (file, path)", False)
+        self.commitDb()
+        return(True)
 
-    def closeDB(self):
-        """Ferme la base de données"""
-        self.curDB.close()
-        self.conDB.close()
+    def dropDb(self):
+        "Drop the DB"
+        print("*** dropDb - Drop the database ***")
+        self.execSql("DROP TABLE files", False)
+        return(True)
 
-    def execDB(self, sql, bind):
-        """Exécute une requête dans la base de données"""
+    def initDb(self):
+        """Initialisation of the DB"""
+        print("*** initDb - Initializing the database ***")
+        self.dropDb()
+        self.createDb()
+        return(True)
+
+    def closeDb(self):
+        """Close the DB"""
+        print("*** closeDb - Closing the database ***")
+        self.cur.close()
+        self.con.close()
+        self.cur = None
+        self.con = None
+        return(True)
+
+    def commitDb(self):
+        """Commit"""
+        print("*** commitDb - Commiting the database ***")
+        self.con.commit()
+        
+    def execSql(self, sql, bind):
+        """Execute a SQL statement in DB"""
         if sql:
             if bind:
                 if DEBUG:
                     print(sql, bind)
-                self.curDB.execute(sql, bind)
+                self.cur.execute(sql, bind)
             else:
-                self.curDB.execute(sql)
+                if DEBUG:
+                    print(sql)
+                self.cur.execute(sql)
+            return(True)
+        else:
+            return(False)
 
-    def commitDB(self):
-        """Commit"""
-        self.conDB.commit()
-
-    def refreshBase(self):
-        """Rafraîchi la base de données"""
-        if not self.topDB:
-            self.initDB()
-        self.scanFiles(self.path)
-        self.commitDB()
-        self.listFiles()
-
-    def scanFiles(self, path):
-        """Scan les répertoires et alimente la base de données"""
-        print(M_SCAN[LANG].format(path))
-        for file in os.listdir(path):
-            filepath = path+"/"+file
-            if len(file) > 4 and file[-4: len(file)] in EXT \
-               and file[0:1] != ".":
-                # Si c'est un fichier vidéo alors on l'ajoute
-                self.execDB(DBADD, (os.path.basename(file), filepath))
-            elif os.path.isdir(filepath) and not file in EXC:
-                # Si c'est un répertoire et qu'il n'est pas
-                # dans les exclusions alors on le scanne
-                self.scanFiles(filepath)
+    def getAllMovies(self):
+        """Return all movies from DB"""
+        print("*** getAllMovies - Getting all movies from database ***")
+        files = {}
+        self.execSql("SELECT * FROM files ORDER BY file", False)
+        for file, path in self.cur:
+            files[file] = path
+        return(files)
     
-    def searchFiles(self):
-        """Recherche les fichiers"""
-        s = self.w_search.get()
-        if s:
-            self.search = ('%'+s+'%',)
-        else:
-            self.search = False
-        self.initFiles()
-        self.listFiles()
-        self.displayFiles()
+    def getSrcMovies(self, src):
+        """Return movies from DB with search pattern"""
+        print("*** getSrcMovies - Searching movies in database ***")
+        files = {}
+        self.execSql("SELECT * FROM files WHERE file LIKE ? ORDER BY file", src)
+        for file, path in self.cur:
+            files[file] = path
+        return(files)
 
-    def listFiles(self):
-        """Liste les fichiers présents dans la base"""
-        if not self.topDB:
-            self.initDB()
-        print(M_LIST[LANG])
-        if self.search:
-            self.execDB(DBSRC, self.search)
-        else:
-            self.execDB(DBALL, False)
-        for file, path in self.curDB:
-            self.files[file] = path
+    def addMovie(self, file, filepath):
+        """Add a movie in DB"""
+        self.execSql("INSERT INTO files VALUES (?, ?)", (file, filepath))
+        return(True)
 
-    def playFile(self, file):
-        """Joue le fichier passé en paramètre"""
+#-------------------------------------------------------------------------#
+
+class Player(object):
+
+    """Player class"""
+    
+    def __init__(self, db, path):
+        """Initialisation of the Player object"""
+        self.DB = db
+        self.PATH = path
+        self.db = None
+        self.files = {}
+        self.start()
+        self.display()
+        self.stop()
+
+
+
+    def start(self):
+        """Start the Player"""
+        print("*** Starting the Player")
+        self.db = Db(self.DB)
+        if self.db.openDb():
+            self.loadAllMovies()
+
+			
+    def stop(self):
+        """Stop the Player"""
+        self.db.closeDb()
+        print("*** Stoping the Player")
+
+    def scanDB(self):
+        """Add movies in DB"""
+        print("*** Adding movies in database")
+        scanFiles(self.db, self.path)
+        self.db.commitDb()
+
+    def loadAllMovies(self):
+        """Load movies from DB"""
+        self.files = self.db.getAllMovies()
+
+    def play(self, file):
+        """Play a movie"""
+        print("Playing {}".format(file))
         sub = file[0:-3] + "srt"
         if OMXSRT and os.path.isfile(sub):
             cmd = OMXCMD2.format(sub, file)
@@ -303,148 +243,26 @@ class Player(object):
         print(cmd)
         os.system(cmd)
 
-    def displayFiles(self):
-        """Affiche la liste des fichiers"""
-        liste = list()
-        for f, p in self.files.items():
-            liste.append(f)
-        liste.sort(key=str.lower)
-        for file in liste:
-            self.w_files.insert(tkinter.END, file)
-
-    def initFiles(self):
-        """Initialise les listes de fichiers"""
-        self.files = {}
-        if self.w_files.size() > 0:
-            self.w_files.delete(0, tkinter.END)
-            
-    def refreshFiles(self):
-        """Rafraichit la liste des fichiers"""
-        res = tkinter.messagebox.askokcancel(M_TITLE[LANG], M_ASKSCAN[LANG])
-        if res:
-            self.initFiles()
-            self.refreshBase()
-            self.displayFiles()
+    def display(self):
+        """Display the player"""
         
-    def playSelection(self):
-        """Lire le fichier sélectionné"""
-        sel = self.w_files.curselection()
-        for i in sel:
-            f = self.w_files.get(i)
-            self.playFile(self.files[f])
-        
-    def creerGui(self):
-        """Construction de la fenêtre"""
-        self.root = tkinter.Tk()
-        self.root.title(M_TITLE[LANG])
-        font = tkinter.font.Font(self.root, size=20, family='Sans')
-        # Centrage fenêtre
-        w = self.root.winfo_screenwidth()
-        h = self.root.winfo_screenheight()
-        self.root.geometry('%dx%d+%d+%d' % (w-2, h-60, 0, 0))
-        # Zone recherche
-        self.topframe = tkinter.Frame(self.root, borderwidth=2)
-        self.topframe.pack({"side": "top"})
-        # Input recherche
-        self.w_label = tkinter.Label(self.topframe,
-                                     text=M_SEARCH[LANG],
-                                     font=font
-                                     )
-        self.w_label.grid(row=1, column=0, padx=2, pady=2)
-        self.w_search = tkinter.Entry(self.topframe, font=font)
-        self.w_search.grid(row=1, column=1, padx=2, pady=2)
-        # Bouton rechercher
-        self.w_exec = tkinter.Button(self.topframe,
-                                     text=M_BTSEARCH[LANG],
-                                     command=self.searchFiles,
-                                     font=font
-                                     )
-        self.w_exec.grid(row=1, column=2, padx=2, pady=2)
-        # Zone liste fichiers
-        self.midframe = tkinter.Frame(self.root, borderwidth=2)
-        self.midframe.pack(fill=tkinter.BOTH, expand=1)
-        # Liste des fichiers
-        self.w_files = tkinter.Listbox(self.midframe,
-                                       selectmode=tkinter.EXTENDED,
-                                       font=font
-                                       )
-        self.w_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
-        self.w_scroll = tkinter.Scrollbar(self.midframe,
-                                          command=self.w_files.yview
-                                          )
-        self.w_files.configure(yscrollcommand=self.w_scroll.set)
-        self.w_scroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-        # Groupe boutons
-        self.botframe = tkinter.Frame(self.root, borderwidth=2)
-        self.botframe.pack({"side": "left"})
-        # Bouton Play
-        self.w_play = tkinter.Button(self.botframe,
-                                     text=M_BTPLAY[LANG],
-                                     command=self.playSelection,
-                                     font=font
-                                     )
-        self.w_play.grid(row=1, column=0, padx=2, pady=2) 
-        # Bouton Refresh
-        self.w_scan = tkinter.Button(self.botframe,
-                                     text=M_BTSCAN[LANG],
-                                     command=self.refreshFiles,
-                                     font=font
-                                     )
-        self.w_scan.grid(row=1, column=1, padx=2, pady=2)       
-        # Bouton Help
-        self.w_help = tkinter.Button(self.botframe,
-                                     text=M_BTHELP[LANG],
-                                     command=self.displayHelp,
-                                     font=font
-                                     )
-        self.w_help.grid(row=1, column=2, padx=2, pady=2)
-        # Bouton Quit
-        self.w_quit = tkinter.Button(self.botframe,
-                                     text=M_BTQUIT[LANG],
-                                     command=self.closePlayer,
-                                     font=font
-                                     )
-        self.w_quit.grid(row=1, column=3, padx=2, pady=2)
-        # Bindings
-        self.root.bind('<F4>', self.evtPlay)
-        self.root.bind('<F3>', self.evtSearch)
-        self.root.bind('<F5>', self.evtScan)
-        self.root.bind('<F1>', self.evtHelp)
-        self.w_files.bind("<Return>", self.evtPlay)
-        self.w_search.bind("<Return>", self.evtSearch)
-
-    def evtHelp(self, bind):
-        """Event Help"""
-        self.displayHelp()
-        
-    def evtScan(self, bind):
-        """Event scan"""
-        self.refreshFiles()
-        
-    def evtPlay(self, bind):
-        """Event lecture"""
-        self.playSelection()
-
-    def evtSearch(self, bind):
-        """Event recherche"""
-        self.searchFiles()
-    
-    def displayHelp(self):
-        """Affiche l'aide"""
-        tkinter.messagebox.showinfo(M_TITLE[LANG], M_HLP[LANG].format(VERSION))
-        
-    def closePlayer(self):
-        """Quitte l'application"""
-        self.closeDB()
-        self.root.destroy()
-        
-#-------------------------------------------------------------------------#
-# PROGRAMME PRINCIPAL                                                     #
-#-------------------------------------------------------------------------#
-
-player = Player(PATH, DB)
-player.root.mainloop()
+        #self.root.mainloop()
 
 #-------------------------------------------------------------------------#
-# EOF                                                                     #
+
+#-------------------------------------------------------------------------#
+# MAIN PROGRAM
+#-------------------------------------------------------------------------#
+
+if len(argv) == 2:
+    print("{}".format(argv[0]))
+    print("Database: {}".format(DB))
+    print("Path:     {}".format(argv[1]))
+    player = Player(DB, argv[1])
+else:
+    print("Usage: {} /path/to/medias".format(argv[0]))
+
+
+#---------/---------------------------------------------------------------#
+# EOF
 #-------------------------------------------------------------------------#
