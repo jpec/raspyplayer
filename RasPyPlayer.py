@@ -33,29 +33,6 @@ VERSION = "2.0-dev"
 # DEBUG - Debug mode (False / True) :
 DEBUG = False
 
-# DB - Database file
-DB = "RasPyPlayer.sqlite3"
-
-# OMXCMD - Commands to launch omxplayer :
-OMXCMD1 = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
-OMXCMD2 = 'lxterminal --command \"omxplayer --subtitles \\"{0}\\" \\"{1}\\"\"'
-
-# OMXSRT - Omxplayer version can handle subtitles (False / True) :
-OMXSRT = False
-
-# EXT - Movies extensions to add in movie database :
-EXT = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
-
-# EXC - Exclude theses directories from movies search :
-EXC = ["Backup",
-       "Musique",
-       "Musique_old",
-       "MacBookPro",
-       "Temporary Items",
-       ".TemporaryItems",
-       "MacBook Pro de Julien.sparsebundle",
-       "A VOIR"]
-
 
 #-------------------------------------------------------------------------#
 # MODULES
@@ -73,7 +50,7 @@ import tkinter.font
 # FUNCTIONS
 #-------------------------------------------------------------------------#
 
-def scanFiles(db, path):
+def scanFiles(db, cfg, path):
     
     """Look for movies in path to add in DB."""
     
@@ -81,14 +58,14 @@ def scanFiles(db, path):
         print("Scan {0}".format(path))
     for file in os.listdir(path):
         filepath = path+"/"+file
-        if len(file) > 4 and file[-4: len(file)] in EXT \
+        if len(file) > 4 and file[-4: len(file)] in cfg.EXT \
             and file[0:1] != ".":
             # File
             db.addMovie(os.path.basename(file), filepath)
-        elif os.path.isdir(filepath) and not file in EXC \
+        elif os.path.isdir(filepath) and not file in cfg.EXC \
             and file[0:1] != ".":
             # Directory
-            scanFiles(db, filepath)
+            scanFiles(db, cfg, filepath)
 
 #-------------------------------------------------------------------------#
 
@@ -96,13 +73,102 @@ def scanFiles(db, path):
 # CLASSES
 #-------------------------------------------------------------------------#
 
+class Config(object):
+    
+    """Configuration class"""
+
+    def __init__(self):
+        """Initialisation of the config object"""
+        # EXC - Exclude theses directories from movies search
+        self.EXC = self.initExcDir()
+        # EXC - Exclude theses directories from movies search
+        self.EXT = self.initFileExt()
+        # DB - Database file name
+        self.DB = self.initDbName()
+        # OMXSRT - Omxplayer version can handle subtitles
+        self.OMXSRT = False
+        # OMXCMD - Commands to launch omxplayer
+        self.OMXCMD = self.initOmxCmd()
+        # DB*** - SQL request
+        self.DBADD = self.initDbAdd()
+        self.DBALL = self.initDbAll()
+        self.DBSRC = self.initDbSrc()
+        self.DBDRP = self.initDbDrp()
+        self.DBCRT = self.initDbCrt()
+
+    def initExcDir(self):
+        """Initialisation of the excluded directories"""
+        res = [
+            "Backup", 
+            "Musique", 
+            "Musique_old", 
+            "MacBookPro",
+            "Temporary Items", 
+            ".TemporaryItems", 
+            "MacBook Pro de Julien.sparsebundle",
+            "A VOIR"
+            ]
+        return(res)
+
+    def initFileExt(self):
+        """Initialisation of the files extensions"""
+        res = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
+        return(res)
+
+    def initDbName(self):
+        """Initialisation of the database name"""
+        return("RasPyPlayer.sqlite3")
+
+    def initOmxCmd(self):
+        """Initialisation of the Omx Player command"""
+        OMXCMD1 = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
+        OMXCMD2 = 'lxterminal --command \"omxplayer '
+                + '--subtitles \\"{0}\\" \\"{1}\\"\"'
+        if self.OMXSRT:
+            res = OMXCMD2
+        else:
+            res = OMXCMD1
+        return(res)
+
+    def initDbAdd(self):
+        """Initialisation of the DBADD request"""
+        res = "INSERT INTO files VALUES (?, ?)"
+        return(res)
+
+    def initDbSrc(self):
+        """Initialisation of the DBSRC request"""
+        res = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
+        return(res)
+
+    def initDbAll(self):
+        """Initialisation of the DBALL request"""
+        res = "SELECT * FROM files ORDER BY file"
+        return(res)
+
+    def initDbDrp(self):
+        """Initialisation of the DBDRP request"""
+        res = "DROP TABLE files"
+        return(res)
+
+    def initDbCrt(self):
+        """Initialisation of the DBCRT request"""
+        res = "CREATE TABLE files (file, path)"
+        return(res)
+
+    def display(self, root):
+        """Display the setting window"""
+        # TODO
+
+#-------------------------------------------------------------------------#
+
 class Db(object):
     
     """DataBase class"""
     
-    def __init__(self, db):
+    def __init__(self, cfg):
         """Initialisation of the DB object"""
-        self.db = db
+        self.cfg = cfg
+        self.db = cfg.DB
         self.con = None
         self.cur = None
         self.new = False
@@ -121,27 +187,27 @@ class Db(object):
 
     def createDb(self):
         """Create the DB"""
-        print("*** createDb - Creating the database ***")
-        self.execSql("CREATE TABLE files (file, path)", False)
+        print("*** DB - Creating the database ***")
+        self.execSql(self.cfg.DBCRT, False)
         self.commitDb()
         return(True)
 
     def dropDb(self):
         "Drop the DB"
-        print("*** dropDb - Drop the database ***")
-        self.execSql("DROP TABLE files", False)
+        print("*** DB - Dropping the database ***")
+        self.execSql(self.cfg.DBDRP, False)
         return(True)
 
     def initDb(self):
         """Initialisation of the DB"""
-        print("*** initDb - Initializing the database ***")
+        print("*** DB - Initializing the database ***")
         self.dropDb()
         self.createDb()
         return(True)
 
     def closeDb(self):
         """Close the DB"""
-        print("*** closeDb - Closing the database ***")
+        print("*** DB - Closing the database ***")
         self.cur.close()
         self.con.close()
         self.cur = None
@@ -150,7 +216,7 @@ class Db(object):
 
     def commitDb(self):
         """Commit"""
-        print("*** commitDb - Commiting the database ***")
+        print("*** DB - Commiting the database ***")
         self.con.commit()
         
     def execSql(self, sql, bind):
@@ -170,25 +236,23 @@ class Db(object):
 
     def getAllMovies(self):
         """Return all movies from DB"""
-        print("*** getAllMovies - Getting all movies from database ***")
         files = {}
-        self.execSql("SELECT * FROM files ORDER BY file", False)
+        self.execSql(self.cfg.DBALL, False)
         for file, path in self.cur:
             files[file] = path
         return(files)
     
     def getSrcMovies(self, src):
         """Return movies from DB with search pattern"""
-        print("*** getSrcMovies - Searching movies in database ***")
         files = {}
-        self.execSql("SELECT * FROM files WHERE file LIKE ? ORDER BY file", src)
+        self.execSql(self.cfg.DBSRC, src)
         for file, path in self.cur:
             files[file] = path
         return(files)
 
     def addMovie(self, file, filepath):
         """Add a movie in DB"""
-        self.execSql("INSERT INTO files VALUES (?, ?)", (file, filepath))
+        self.execSql(self.cfg.DBADD, (file, filepath))
         return(True)
 
 #-------------------------------------------------------------------------#
@@ -197,9 +261,9 @@ class Player(object):
 
     """Player class"""
     
-    def __init__(self, db, path):
+    def __init__(self, path):
         """Initialisation of the Player object"""
-        self.DB = db
+        self.cfg = None
         self.PATH = path
         self.db = None
         self.files = {}
@@ -207,25 +271,26 @@ class Player(object):
         self.display()
         self.stop()
 
-
-
     def start(self):
         """Start the Player"""
         print("*** Starting the Player")
-        self.db = Db(self.DB)
+        # Configuration
+        self.cfg = Config()
+        # Database
+        self.db = Db(self.cfg)
         if self.db.openDb():
             self.loadAllMovies()
+        # TODO
 
-			
     def stop(self):
         """Stop the Player"""
+        print("*** Stopping the Player")
         self.db.closeDb()
-        print("*** Stoping the Player")
-
+        
     def scanDB(self):
         """Add movies in DB"""
         print("*** Adding movies in database")
-        scanFiles(self.db, self.path)
+        scanFiles(self.db, self.cfg, self.path)
         self.db.commitDb()
 
     def loadAllMovies(self):
@@ -256,13 +321,12 @@ class Player(object):
 
 if len(argv) == 2:
     print("{}".format(argv[0]))
-    print("Database: {}".format(DB))
-    print("Path:     {}".format(argv[1]))
-    player = Player(DB, argv[1])
+    print("Path: {}".format(argv[1]))
+    player = Player(argv[1])
 else:
     print("Usage: {} /path/to/medias".format(argv[0]))
 
 
-#---------/---------------------------------------------------------------#
+#-------------------------------------------------------------------------#
 # EOF
 #-------------------------------------------------------------------------#
