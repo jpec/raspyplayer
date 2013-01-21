@@ -74,6 +74,41 @@ def error(msg):
     print("[ERROR] {}".format(msg))
 
 #-------------------------------------------------------------------------#
+
+def getHelp():
+
+    """Return help text"""
+    msg = """
+    RasPyPlayer, v{0}
+    Author : Julien Pecqueur (JPEC)
+    Email : jpec@julienpecqueur.net
+    Home : http://raspyplayer.org
+    Sources : https://github.com/jpec/RasPyPlayer
+    Bugs : https://github.com/jpec/RasPyPlayer/issues
+    License : GPL
+
+    Keyboard shortcuts in RasPyPlayer :
+    F1 : Help
+    F3 : Search
+    F4 : Play
+    F5 : Refresh
+
+    Keyboard shortcuts during playback :
+    n : Previous subtitle
+    m : Next subtitle
+    s : Toggle subtitle
+    q : Quit playback
+    p : Pause/Resume (space)
+    - : Lower volume
+    + : Higher volume
+    Left : Seek -30
+    Right : Seek +30
+    Down : Seek -600
+    Up : Seek +600
+    """
+    return(msg.format(VERSION))
+
+#-------------------------------------------------------------------------#
 # CLASSES
 #-------------------------------------------------------------------------#
 
@@ -131,8 +166,8 @@ class Config(object):
 
     def initOmxCmd2(self):
         """Initialisation of the Omx Player command (with subtitles)"""
-        res = 'lxterminal --command \"omxplayer '
-            + '--subtitles \\"{0}\\" \\"{1}\\"\"'
+        res = 'lxterminal --command \"omxplayer ' \
+        + '--subtitles \\"{0}\\" \\"{1}\\"\"'
         return(res)
 
     def initDbAdd(self):
@@ -180,7 +215,7 @@ class Db(object):
 
     def openDb(self):
         """Open the DB"""
-        print("*** openDb - opening the database ***")
+        print("*** DB - Opening the database ***")
         new = False
         if not os.path.isfile(self.db):
             new = True
@@ -269,11 +304,11 @@ class Player(object):
     def __init__(self, path):
         """Initialisation of the Player object"""
         self.cfg = None
-        self.PATH = path
+        self.path = path
         self.db = None
+        self.root = None
         self.files = {}
         self.start()
-        self.stop()
 
     def start(self):
         """Start the Player"""
@@ -283,25 +318,34 @@ class Player(object):
         # Database
         self.db = Db(self.cfg)
         if self.db.openDb():
-            self.loadAllMovies()
             self.display()
+            return(True)
         else:
             error("Database not open")
+            return(False)
 
     def stop(self):
         """Stop the Player"""
         print("*** Stopping the Player")
         self.db.closeDb()
+        self.root.destroy()
         
     def scanDB(self):
         """Add movies in DB"""
         print("*** Adding movies in database")
         scanFiles(self.db, self.cfg, self.path)
         self.db.commitDb()
+        return(True)
 
     def loadAllMovies(self):
         """Load movies from DB"""
         self.files = self.db.getAllMovies()
+        return(True)
+
+    def loadSrcMovies(self, src):
+        """Load movies matching search pattern"""
+        self.files = self.db.getSrcMovies(src)
+        return(True)
 
     def play(self, file):
         """Play a movie"""
@@ -314,15 +358,140 @@ class Player(object):
         if DEBUG:
             print(cmd)
         os.system(cmd)
+        return(True)
+
+    def displayHelp(self):
+        """Display help"""
+        tkinter.messagebox.showinfo("Help...", getHelp())
+        return(True)
+
+    def playSelection(self):
+        """Play selected files"""
+        sel = self.ui_files.curselection()
+        for i in sel:
+            f = self.ui_files.get(i)
+            self.play(self.files[f])
+        return(True)
 
     def display(self):
         """Display the player"""
         self.createGui()
-        #self.root.mainloop()
+        self.refreshDataBase()
+        self.root.mainloop()
+
+    def askToRefreshDataBase(self):
+        """Ask to refresh database"""
+        msg = "Do you want to refresh the movies database ?"
+        res = tkinter.messagebox.askokcancel("RasPyPlayer", msg)
+        if res:
+            self.refreshDataBase()
+        return(True)
+
+    def refreshDataBase(self):
+        """Refresh the movies database"""
+        scanFiles(self.db, self.cfg, self.path)
+        self.refreshFilesList()
+        return(True)
+
+    def refreshFilesList(self):
+        """Refresh the list of files"""
+        src = self.ui_srcentry.get()
+        # Empty variables :
+        self.files = {}
+        if self.ui_files.size() > 0:
+            self.ui_files.delete(0, tkinter.END)
+        # Get files in DB :
+        if src == "" or src == "*":
+            if DEBUG:
+                print("Get ALL")
+            self.loadAllMovies()
+        else:
+            if DEBUG:
+                print("Get '{}'".format(src))
+            self.loadSrcMovies(('%'+src+'%',))
+        # Sort results :
+        liste = list()
+        for f, p in self.files.items():
+            liste.append(f)
+        liste.sort(key=str.lower)
+        # Display result :
+        for file in liste:
+            self.ui_files.insert(tkinter.END, file)
+        return(True)
 
     def createGui(self):
         """Create the GUI for Player"""
         print("*** Creating GUI ***")
+        self.root = tkinter.Tk()
+        self.root.title("RasPyPlayer v{}".format(VERSION))
+        font = tkinter.font.Font(self.root, size=20, family='Sans')
+        self.root.attributes('-fullscreen', True)
+        self.root.attributes('-topmost', True)
+        # Top Frame (search group)
+        self.ui_topframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_topframe.pack({"side": "top"})
+        # Label search
+        self.ui_srclabel = tkinter.Label(self.ui_topframe,
+                                     text="Search:",
+                                     font=font
+                                     )
+        self.ui_srclabel.grid(row=1, column=0, padx=2, pady=2)
+        # Entry search
+        self.ui_srcentry = tkinter.Entry(self.ui_topframe, font=font)
+        self.ui_srcentry.grid(row=1, column=1, padx=2, pady=2)
+        # Button search
+        self.ui_srcexec = tkinter.Button(self.ui_topframe,
+                                     text="Search",
+                                     command=self.refreshFilesList,
+                                     font=font
+                                     )
+        self.ui_srcexec.grid(row=1, column=2, padx=2, pady=2)
+        # Middle Frame (files group)
+        self.ui_midframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_midframe.pack(fill=tkinter.BOTH, expand=1)
+        # Files liste and scrollbar
+        self.ui_files = tkinter.Listbox(self.ui_midframe,
+                                       selectmode=tkinter.EXTENDED,
+                                       font=font
+                                       )
+        self.ui_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
+        self.ui_filesscroll = tkinter.Scrollbar(self.ui_midframe,
+                                          command=self.ui_files.yview
+                                          )
+        self.ui_files.configure(yscrollcommand=self.ui_filesscroll.set)
+        self.ui_filesscroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        # Bottom Frame (buttons group)
+        self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_botframe.pack({"side": "left"})
+        # Button Play
+        self.ui_butplay = tkinter.Button(self.ui_botframe,
+                                     text="Play",
+                                     command=self.playSelection,
+                                     font=font
+                                     )
+        self.ui_butplay.grid(row=1, column=0, padx=2, pady=2) 
+        # Button Refresh
+        self.ui_butscan = tkinter.Button(self.ui_botframe,
+                                     text="Scan",
+                                     command=self.askToRefreshDataBase,
+                                     font=font
+                                     )
+        self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)       
+        # Button Help
+        self.ui_buthelp = tkinter.Button(self.ui_botframe,
+                                     text="Help",
+                                     command=self.displayHelp,
+                                     font=font
+                                     )
+        self.ui_buthelp.grid(row=1, column=2, padx=2, pady=2)
+        # Button Quit
+        self.ui_butquit = tkinter.Button(self.ui_botframe,
+                                     text="Quit",
+                                     command=self.stop,
+                                     font=font
+                                     )
+        self.ui_butquit.grid(row=1, column=3, padx=2, pady=2)
+        return(True)
 
 #-------------------------------------------------------------------------#
 
