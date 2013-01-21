@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------#
 VERSION = "2.0-dev"
 #-------------------------------------------------------------------------#
-# Author :Julien Pecqueur (JPEC)
+# Author :  Julien Pecqueur (JPEC)
 # Email :   jpec@julienpecqueur.net
 # Site :    http://raspyplayer.org
 # Sources : https://github.com/jpec/RasPyPlayer
@@ -33,7 +33,6 @@ VERSION = "2.0-dev"
 # DEBUG - Debug mode (False / True) :
 DEBUG = False
 
-
 #-------------------------------------------------------------------------#
 # MODULES
 #-------------------------------------------------------------------------#
@@ -44,7 +43,6 @@ import sqlite3
 import tkinter
 import tkinter.messagebox
 import tkinter.font
-
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -69,12 +67,18 @@ def scanFiles(db, cfg, path):
 
 #-------------------------------------------------------------------------#
 
+def error(msg):
+
+    """Logging error messages"""
+
+    print("[ERROR] {}".format(msg))
+
 #-------------------------------------------------------------------------#
 # CLASSES
 #-------------------------------------------------------------------------#
 
 class Config(object):
-    
+
     """Configuration class"""
 
     def __init__(self):
@@ -88,8 +92,9 @@ class Config(object):
         # OMXSRT - Omxplayer version can handle subtitles
         self.OMXSRT = False
         # OMXCMD - Commands to launch omxplayer
-        self.OMXCMD = self.initOmxCmd()
-        # DB*** - SQL request
+        self.OMXCMD1 = self.initOmxCmd1()
+        self.OMXCMD2 = self.initOmxCmd2()
+        # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
         self.DBSRC = self.initDbSrc()
@@ -119,15 +124,15 @@ class Config(object):
         """Initialisation of the database name"""
         return("RasPyPlayer.sqlite3")
 
-    def initOmxCmd(self):
-        """Initialisation of the Omx Player command"""
-        OMXCMD1 = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
-        OMXCMD2 = 'lxterminal --command \"omxplayer '
-                + '--subtitles \\"{0}\\" \\"{1}\\"\"'
-        if self.OMXSRT:
-            res = OMXCMD2
-        else:
-            res = OMXCMD1
+    def initOmxCmd1(self):
+        """Initialisation of the Omx Player command (no subtitles)"""
+        res = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
+        return(res)
+
+    def initOmxCmd2(self):
+        """Initialisation of the Omx Player command (with subtitles)"""
+        res = 'lxterminal --command \"omxplayer '
+            + '--subtitles \\"{0}\\" \\"{1}\\"\"'
         return(res)
 
     def initDbAdd(self):
@@ -268,7 +273,6 @@ class Player(object):
         self.db = None
         self.files = {}
         self.start()
-        self.display()
         self.stop()
 
     def start(self):
@@ -280,7 +284,9 @@ class Player(object):
         self.db = Db(self.cfg)
         if self.db.openDb():
             self.loadAllMovies()
-        # TODO
+            self.display()
+        else:
+            error("Database not open")
 
     def stop(self):
         """Stop the Player"""
@@ -301,17 +307,22 @@ class Player(object):
         """Play a movie"""
         print("Playing {}".format(file))
         sub = file[0:-3] + "srt"
-        if OMXSRT and os.path.isfile(sub):
-            cmd = OMXCMD2.format(sub, file)
+        if self.cfg.OMXSRT and os.path.isfile(sub):
+            cmd = self.cfg.OMXCMD2.format(sub, file)
         else:
-            cmd = OMXCMD1.format(file)
-        print(cmd)
+            cmd = self.cfg.OMXCMD1.format(file)
+        if DEBUG:
+            print(cmd)
         os.system(cmd)
 
     def display(self):
         """Display the player"""
-        
+        self.createGui()
         #self.root.mainloop()
+
+    def createGui(self):
+        """Create the GUI for Player"""
+        print("*** Creating GUI ***")
 
 #-------------------------------------------------------------------------#
 
@@ -325,7 +336,6 @@ if len(argv) == 2:
     player = Player(argv[1])
 else:
     print("Usage: {} /path/to/medias".format(argv[0]))
-
 
 #-------------------------------------------------------------------------#
 # EOF
