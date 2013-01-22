@@ -9,10 +9,17 @@ Installation (Raspbian)
 -----------------------
 
 Download the Raspbian package on this page (raspyplayer.deb) and save it on your Pi. 
-Use the following command to install RasPyPlayer :
+
+Use the following command to install RasPyPlayer:
 
     sudo dpkg -i raspyplayer.deb
 
+Configuration :
+---------------
+
+You can configure RasPyPlayer by editing the configuration file:
+
+    sudo nano /etc/raspyplayer.conf
 
 Mount SMB Folder at /media/nas
 --------------------------------
@@ -24,5 +31,9 @@ Add the following line in your /etc/rc.local:
 First launch of RasPyPlayer
 ---------------------------
 
-You can find the RasPyPlayer program in the LXDE menu. You need to click on "SCAN" to refresh you movies database.
+You can find the RasPyPlayer program in the LXDE menu. You need to click on "SCAN" to refresh you movies database. You can also launch it from command line:
+
+    raspyplayer
+
+
 

@@ -31,13 +31,12 @@ VERSION = "2.0-dev"
 #-------------------------------------------------------------------------#
 
 # DEBUG - Debug mode (False / True) :
-DEBUG = False
+DEBUG = True
 
 #-------------------------------------------------------------------------#
 # MODULES
 #-------------------------------------------------------------------------#
 
-from sys import argv
 import os
 import sqlite3
 import tkinter
@@ -118,23 +117,64 @@ class Config(object):
 
     def __init__(self):
         """Initialisation of the config object"""
-        # EXC - Exclude theses directories from movies search
-        self.EXC = self.initExcDir()
-        # EXC - Exclude theses directories from movies search
-        self.EXT = self.initFileExt()
-        # DB - Database file name
-        self.DB = self.initDbName()
-        # OMXSRT - Omxplayer version can handle subtitles
-        self.OMXSRT = False
-        # OMXCMD - Commands to launch omxplayer
-        self.OMXCMD1 = self.initOmxCmd1()
-        self.OMXCMD2 = self.initOmxCmd2()
+        self.CONF = "/etc/raspyplayer.conf"
+        # Values loaded from CONF file
+        self.PATH = None
+        self.EXC = []
+        self.EXT = []
+        self.DB = None
+        self.OMXSRT = None
+        self.OMXCMD1 = None
+        self.OMXCMD2 = None
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
         self.DBSRC = self.initDbSrc()
         self.DBDRP = self.initDbDrp()
         self.DBCRT = self.initDbCrt()
+
+    def readConf(self):
+        """Read the CONF file"""
+        if os.path.isfile(self.PATH):
+            f = open(self.CONF, 'r')
+            for l in f.readlines():
+                if len(l) >= 3 and l[0:3] == "DB=":
+                    self.DB = l[3:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 4 and l[0:4] == "EXC=":
+                    self.EXC.append(l[4:len(l)])
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 4 and l[0:4] == "EXT=":
+                    self.EXT.append(l[4:len(l)])
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "PATH=":
+                    self.PATH = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 7 and l[0:7] == "OMXSRT=":
+                    self.OMXSRT = l[7:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 8 and l[0:8] == "OMXCMD1=":
+                    if DEBUG:
+                        print(l)
+                    self.OMXCMD1 = l[8:len(l)]
+                elif len(l) >= 8 and l[0:8] == "OMXCMD2=":
+                    if DEBUG:
+                        print(l)
+                    self.OMXCMD2 = l[8:len(l)]
+            f.close()
+            return(True)
+        else:
+            return(False)
+
+    def initPath(self):
+        """Initilisation of the path"""
+        res = "/media/nas"
+        return(res)
 
     def initExcDir(self):
         """Initialisation of the excluded directories"""
@@ -301,10 +341,9 @@ class Player(object):
 
     """Player class"""
     
-    def __init__(self, path):
+    def __init__(self):
         """Initialisation of the Player object"""
         self.cfg = None
-        self.path = path
         self.db = None
         self.root = None
         self.files = {}
@@ -315,13 +354,17 @@ class Player(object):
         print("*** Starting the Player")
         # Configuration
         self.cfg = Config()
-        # Database
-        self.db = Db(self.cfg)
-        if self.db.openDb():
-            self.display()
-            return(True)
+        if self.cfg.readConf():   
+            # Database
+            self.db = Db(self.cfg)
+            if self.db.openDb():
+                self.display()
+                return(True)
+            else:
+                error("Database not open")
+                return(False)
         else:
-            error("Database not open")
+            error("Cannot read configuration file")
             return(False)
 
     def stop(self):
@@ -333,7 +376,7 @@ class Player(object):
     def scanDB(self):
         """Add movies in DB"""
         print("*** Adding movies in database")
-        scanFiles(self.db, self.cfg, self.path)
+        scanFiles(self.db, self.cfg, self.cfg.PATH)
         self.db.commitDb()
         return(True)
 
@@ -499,12 +542,7 @@ class Player(object):
 # MAIN PROGRAM
 #-------------------------------------------------------------------------#
 
-if len(argv) == 2:
-    print("{}".format(argv[0]))
-    print("Path: {}".format(argv[1]))
-    player = Player(argv[1])
-else:
-    print("Usage: {} /path/to/medias".format(argv[0]))
+player = Player()
 
 #-------------------------------------------------------------------------#
 # EOF
