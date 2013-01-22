@@ -124,8 +124,9 @@ class Config(object):
         self.EXT = []
         self.DB = None
         self.OMXSRT = None
-        self.OMXCMD1 = None
-        self.OMXCMD2 = None
+        # Values hard coded
+        self.OMXCMD1='lxterminal --command \"omxplayer \\"{0}\\"\"'
+        self.OMXCMD2='lxterminal --command \"omxplayer --subtitles \\"{0}\\" \\"{1}\\"\"'
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
@@ -135,9 +136,10 @@ class Config(object):
 
     def readConf(self):
         """Read the CONF file"""
-        if os.path.isfile(self.PATH):
+        if os.path.isfile(self.CONF):
             f = open(self.CONF, 'r')
             for l in f.readlines():
+                l = l.replace("\n", "")
                 if len(l) >= 3 and l[0:3] == "DB=":
                     self.DB = l[3:len(l)]
                     if DEBUG:
@@ -158,57 +160,10 @@ class Config(object):
                     self.OMXSRT = l[7:len(l)]
                     if DEBUG:
                         print(l)
-                elif len(l) >= 8 and l[0:8] == "OMXCMD1=":
-                    if DEBUG:
-                        print(l)
-                    self.OMXCMD1 = l[8:len(l)]
-                elif len(l) >= 8 and l[0:8] == "OMXCMD2=":
-                    if DEBUG:
-                        print(l)
-                    self.OMXCMD2 = l[8:len(l)]
             f.close()
             return(True)
         else:
             return(False)
-
-    def initPath(self):
-        """Initilisation of the path"""
-        res = "/media/nas"
-        return(res)
-
-    def initExcDir(self):
-        """Initialisation of the excluded directories"""
-        res = [
-            "Backup", 
-            "Musique", 
-            "Musique_old", 
-            "MacBookPro",
-            "Temporary Items", 
-            ".TemporaryItems", 
-            "MacBook Pro de Julien.sparsebundle",
-            "A VOIR"
-            ]
-        return(res)
-
-    def initFileExt(self):
-        """Initialisation of the files extensions"""
-        res = [".avi", ".mpg", ".mp4", ".wmv", ".mkv"]
-        return(res)
-
-    def initDbName(self):
-        """Initialisation of the database name"""
-        return("RasPyPlayer.sqlite3")
-
-    def initOmxCmd1(self):
-        """Initialisation of the Omx Player command (no subtitles)"""
-        res = 'lxterminal --command \"omxplayer \\"{0}\\"\"'
-        return(res)
-
-    def initOmxCmd2(self):
-        """Initialisation of the Omx Player command (with subtitles)"""
-        res = 'lxterminal --command \"omxplayer ' \
-        + '--subtitles \\"{0}\\" \\"{1}\\"\"'
-        return(res)
 
     def initDbAdd(self):
         """Initialisation of the DBADD request"""
@@ -351,7 +306,7 @@ class Player(object):
 
     def start(self):
         """Start the Player"""
-        print("*** Starting the Player")
+        print("*** Starting the Player ***")
         # Configuration
         self.cfg = Config()
         if self.cfg.readConf():   
@@ -369,7 +324,7 @@ class Player(object):
 
     def stop(self):
         """Stop the Player"""
-        print("*** Stopping the Player")
+        print("*** Stopping the Player ***")
         self.db.closeDb()
         self.root.destroy()
         
@@ -432,7 +387,7 @@ class Player(object):
 
     def refreshDataBase(self):
         """Refresh the movies database"""
-        scanFiles(self.db, self.cfg, self.path)
+        scanFiles(self.db, self.cfg, self.cfg.PATH)
         self.refreshFilesList()
         return(True)
 
