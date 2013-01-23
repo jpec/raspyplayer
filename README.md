@@ -21,6 +21,29 @@ You can configure RasPyPlayer by editing the configuration file:
 
     sudo nano /etc/raspyplayer.conf
 
+Options:
+
+    # PATH - Root directory of the movies
+	PATH=/media/nas
+
+	# EXC - Exclude theses directories from movies search
+	EXC=Rep1
+	EXC=Rep2
+
+	# EXT - Extensions of movies
+	EXT=.avi
+	EXT=.mpg
+	EXT=.mp4
+	EXT=.wmv
+	EXT=.mkv
+
+	# DB - Database file name
+	DB=.raspyplayer.sqlite3
+
+	# OMXSRT - Omxplayer version can handle subtitles
+	OMXSRT=0
+
+
 Mount SMB Folder at /media/nas
 --------------------------------
 
