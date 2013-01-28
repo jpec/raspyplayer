@@ -31,7 +31,7 @@ VERSION = "2.0-dev"
 #-------------------------------------------------------------------------#
 
 # DEBUG - Debug mode (False / True) :
-DEBUG = True
+DEBUG = False
 
 #-------------------------------------------------------------------------#
 # MODULES
@@ -86,13 +86,13 @@ def getHelp():
     Bugs : https://github.com/jpec/RasPyPlayer/issues
     License : GPL
 
-    Keyboard shortcuts in RasPyPlayer :
+    Keyboard shortcuts in RasPyPlayer:
     F1 : Help
     F3 : Search
     F4 : Play
     F5 : Refresh
 
-    Keyboard shortcuts during playback :
+    Keyboard shortcuts during playback:
     n : Previous subtitle
     m : Next subtitle
     s : Toggle subtitle
@@ -192,7 +192,105 @@ class Config(object):
 
     def display(self, root):
         """Display the setting window"""
+        print(self.PATH)
+        print(self.DB)
+        print(self.OMXSRT)
+        if self.createGui():
+            self.fill()
+            self.root.mainloop()
+        return(True)
+
+    def fill(self):
+        """Fill the setting window"""
+        self.ui_path.insert(0, self.PATH)
+        self.ui_exc.insert(0, str(self.EXC))
+        self.ui_ext.insert(0, str(self.EXT))
+        self.ui_db.insert(0, self.DB)
+        self.ui_srt.insert(0, self.OMXSRT)
+
+    def save(self):
+        """Save the config"""
+        print("*** Saving the configuration ***")
         # TODO
+
+    def createGui(self):
+        """Create the GUI for Config"""
+        print("*** Creating Configuration GUI ***")
+        self.root = tkinter.Tk()
+        self.root.title("Configuration")
+        font = tkinter.font.Font(self.root, size=20, family='Sans')
+        # Middle Frame (config group)
+        self.ui_midframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_midframe.pack(fill=tkinter.BOTH, expand=1)
+        # PATH
+        self.ui_pathlbl = tkinter.Label(self.ui_midframe,
+            text="Movies root folder",
+            font=font
+            )
+        self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
+        self.ui_path = tkinter.Entry(self.ui_midframe,
+            font=font
+            )
+        self.ui_path.grid(row=1, column=1, padx=2, pady=2)
+        # EXC
+        self.ui_exclbl = tkinter.Label(self.ui_midframe,
+            text="Directories to exclude",
+            font=font
+            )
+        self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
+        self.ui_exc = tkinter.Entry(self.ui_midframe,
+            font=font
+            )
+        self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
+        # EXT
+        self.ui_extlbl = tkinter.Label(self.ui_midframe,
+            text="Movies extensions",
+            font=font
+            )
+        self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
+        self.ui_ext = tkinter.Entry(self.ui_midframe,
+            font=font
+            )
+        self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
+        # DB
+        self.ui_dblbl = tkinter.Label(self.ui_midframe,
+            text="Database name",
+            font=font
+            )
+        self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
+        self.ui_db = tkinter.Entry(self.ui_midframe,
+            font=font
+            )
+        self.ui_db.grid(row=4, column=1, padx=2, pady=2)
+        # OMXSRT
+        self.ui_srtlbl = tkinter.Label(self.ui_midframe,
+            text="OMXplayer version can handle subtitles (0 / 1)",
+            font=font
+            )
+        self.ui_srtlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_srt = tkinter.Entry(self.ui_midframe,
+            font=font
+            )
+        self.ui_srt.grid(row=5, column=1, padx=2, pady=2)
+        # Bottom Frame (buttons group)
+        self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_botframe.pack({"side": "left"})
+        # Button Save
+        self.ui_butsave = tkinter.Button(self.ui_botframe,
+            text="Save",
+            command=self.save,
+            font=font
+            )
+        self.ui_butsave.grid(row=1, column=0, padx=2, pady=2) 
+        # Button Close
+        self.ui_butquit = tkinter.Button(self.ui_botframe,
+            text="Close",
+            command=self.root.destroy,
+            font=font
+            )
+        self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)       
+        return(True)
+
 
 #-------------------------------------------------------------------------#
 
@@ -363,6 +461,11 @@ class Player(object):
         tkinter.messagebox.showinfo("Help...", getHelp())
         return(True)
 
+    def displayConfig(self):
+        """Display Config Window"""
+        self.cfg.display(self.root)
+        return(True)
+
     def playSelection(self):
         """Play selected files"""
         sel = self.ui_files.curselection()
@@ -474,21 +577,28 @@ class Player(object):
                                      command=self.askToRefreshDataBase,
                                      font=font
                                      )
-        self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)       
+        self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
+        # Button Config
+        self.ui_butconf = tkinter.Button(self.ui_botframe,
+                                     text="Config",
+                                     command=self.displayConfig,
+                                     font=font
+                                     )
+        self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)   
         # Button Help
         self.ui_buthelp = tkinter.Button(self.ui_botframe,
                                      text="Help",
                                      command=self.displayHelp,
                                      font=font
                                      )
-        self.ui_buthelp.grid(row=1, column=2, padx=2, pady=2)
+        self.ui_buthelp.grid(row=1, column=3, padx=2, pady=2)
         # Button Quit
         self.ui_butquit = tkinter.Button(self.ui_botframe,
                                      text="Quit",
                                      command=self.stop,
                                      font=font
                                      )
-        self.ui_butquit.grid(row=1, column=3, padx=2, pady=2)
+        self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
         return(True)
 
 #-------------------------------------------------------------------------#
