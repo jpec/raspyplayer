@@ -10,7 +10,7 @@ VERSION = "2.0-dev"
 # Site :    http://raspyplayer.org
 # Sources : https://github.com/jpec/RasPyPlayer
 # Bugs :    https://github.com/jpec/RasPyPlayer/issues
-# 
+#
 # License :
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@ import tkinter.font
 #-------------------------------------------------------------------------#
 
 def scanFiles(db, cfg, path):
-    
+
     """Look for movies in path to add in DB."""
-    
+
     if DEBUG:
         print("Scan {0}".format(path))
     for file in os.listdir(path):
@@ -192,9 +192,6 @@ class Config(object):
 
     def display(self, root):
         """Display the setting window"""
-        print(self.PATH)
-        print(self.DB)
-        print(self.OMXSRT)
         if self.createGui():
             self.fill()
             self.root.mainloop()
@@ -218,59 +215,60 @@ class Config(object):
         print("*** Creating Configuration GUI ***")
         self.root = tkinter.Tk()
         self.root.title("Configuration")
+        self.root.attributes('-topmost', True)
         font = tkinter.font.Font(self.root, size=20, family='Sans')
         # Middle Frame (config group)
         self.ui_midframe = tkinter.Frame(self.root, borderwidth=2)
         self.ui_midframe.pack(fill=tkinter.BOTH, expand=1)
         # PATH
         self.ui_pathlbl = tkinter.Label(self.ui_midframe,
-            text="Movies root folder",
-            font=font
-            )
+                                        text="Movies root folder",
+                                        justify=tkinter.LEFT,
+                                        anchor=tkinter.W,
+                                        font=font
+                                        )
         self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
-        self.ui_path = tkinter.Entry(self.ui_midframe,
-            font=font
-            )
+        self.ui_path = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_path.grid(row=1, column=1, padx=2, pady=2)
         # EXC
         self.ui_exclbl = tkinter.Label(self.ui_midframe,
-            text="Directories to exclude",
-            font=font
-            )
+                                       text="Directories to exclude",
+                                       justify=tkinter.LEFT,
+                                        anchor=tkinter.W,
+                                       font=font
+                                       )
         self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
-        self.ui_exc = tkinter.Entry(self.ui_midframe,
-            font=font
-            )
+        self.ui_exc = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
         # EXT
         self.ui_extlbl = tkinter.Label(self.ui_midframe,
-            text="Movies extensions",
-            font=font
-            )
+                                       text="Movies extensions",
+                                       justify=tkinter.LEFT,
+                                        anchor=tkinter.W,
+                                       font=font
+                                       )
         self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
-        self.ui_ext = tkinter.Entry(self.ui_midframe,
-            font=font
-            )
+        self.ui_ext = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
         # DB
         self.ui_dblbl = tkinter.Label(self.ui_midframe,
-            text="Database name",
-            font=font
-            )
+                                      text="Database name",
+                                      justify=tkinter.LEFT,
+                                        anchor=tkinter.W,
+                                      font=font
+                                      )
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
-        self.ui_db = tkinter.Entry(self.ui_midframe,
-            font=font
-            )
+        self.ui_db = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
         # OMXSRT
         self.ui_srtlbl = tkinter.Label(self.ui_midframe,
-            text="OMXplayer version can handle subtitles (0 / 1)",
-            font=font
-            )
+                                       text="OMXplayer handle subtitles (0 / 1)",
+                                       justify=tkinter.LEFT,
+                                        anchor=tkinter.W,
+                                       font=font
+                                       )
         self.ui_srtlbl.grid(row=5, column=0, padx=2, pady=2)
-        self.ui_srt = tkinter.Entry(self.ui_midframe,
-            font=font
-            )
+        self.ui_srt = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_srt.grid(row=5, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
@@ -281,23 +279,23 @@ class Config(object):
             command=self.save,
             font=font
             )
-        self.ui_butsave.grid(row=1, column=0, padx=2, pady=2) 
+        self.ui_butsave.grid(row=1, column=0, padx=2, pady=2)
         # Button Close
         self.ui_butquit = tkinter.Button(self.ui_botframe,
             text="Close",
             command=self.root.destroy,
             font=font
             )
-        self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)       
+        self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
         return(True)
 
 
 #-------------------------------------------------------------------------#
 
 class Db(object):
-    
+
     """DataBase class"""
-    
+
     def __init__(self, cfg):
         """Initialisation of the DB object"""
         self.cfg = cfg
@@ -351,7 +349,7 @@ class Db(object):
         """Commit"""
         print("*** DB - Commiting the database ***")
         self.con.commit()
-        
+
     def execSql(self, sql, bind):
         """Execute a SQL statement in DB"""
         if sql:
@@ -374,7 +372,7 @@ class Db(object):
         for file, path in self.cur:
             files[file] = path
         return(files)
-    
+
     def getSrcMovies(self, src):
         """Return movies from DB with search pattern"""
         files = {}
@@ -393,7 +391,7 @@ class Db(object):
 class Player(object):
 
     """Player class"""
-    
+
     def __init__(self):
         """Initialisation of the Player object"""
         self.cfg = None
@@ -407,7 +405,7 @@ class Player(object):
         print("*** Starting the Player ***")
         # Configuration
         self.cfg = Config()
-        if self.cfg.readConf():   
+        if self.cfg.readConf():
             # Database
             self.db = Db(self.cfg)
             if self.db.openDb():
@@ -425,7 +423,7 @@ class Player(object):
         print("*** Stopping the Player ***")
         self.db.closeDb()
         self.root.destroy()
-        
+
     def scanDB(self):
         """Add movies in DB"""
         print("*** Adding movies in database")
@@ -570,7 +568,7 @@ class Player(object):
                                      command=self.playSelection,
                                      font=font
                                      )
-        self.ui_butplay.grid(row=1, column=0, padx=2, pady=2) 
+        self.ui_butplay.grid(row=1, column=0, padx=2, pady=2)
         # Button Refresh
         self.ui_butscan = tkinter.Button(self.ui_botframe,
                                      text="Scan",
@@ -584,7 +582,7 @@ class Player(object):
                                      command=self.displayConfig,
                                      font=font
                                      )
-        self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)   
+        self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
         # Button Help
         self.ui_buthelp = tkinter.Button(self.ui_botframe,
                                      text="Help",
