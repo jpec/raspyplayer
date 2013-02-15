@@ -64,6 +64,20 @@ def scanFiles(db, cfg, path):
             # Directory
             scanFiles(db, cfg, filepath)
 
+def lst2str(l):
+    """lst2str"""
+    s = ""
+    for i in l:
+        s = s + i + ","
+    if len(s) > 1:
+        s = s[0:-1]
+    return(s)
+
+def str2lst(s):
+    """str2lst"""
+    l = s.split(',')
+    return(l)
+
 #-------------------------------------------------------------------------#
 
 def error(msg):
@@ -200,28 +214,16 @@ class Config(object):
     def fill(self):
         """Fill the setting window"""
         self.ui_path.insert(0, self.PATH)
-        l = ""
-        for i in self.EXC:
-            l = l + i + ","
-        if len(l) > 1:
-            l = l[0:-1]
-        self.ui_exc.insert(0, l)
-        l = ""
-        for i in self.EXT:
-            l = l + i + ","
-        if len(l) > 1:
-            l = l[0:-1]
-        self.ui_ext.insert(0, l)
+        self.ui_exc.insert(0, lst2str(self.EXC))
+        self.ui_ext.insert(0, lst2str(self.EXT))
         self.ui_db.insert(0, self.DB)
         self.ui_srt.insert(0, self.OMXSRT)
 
     def reload(self):
         """Load the conf from the setting window"""
         self.PATH = self.ui_path.get()
-        l = self.ui_exc.get()
-        self.EXC = l.split(',')
-        l = self.ui_ext.get()
-        self.EXT = l.split(',')
+        self.EXC = str2lst(self.ui_exc.get())
+        self.EXT = str2lst(self.ui_ext.get())
         self.DB = self.ui_db.get()
         self.OMXSRT = self.ui_srt.get()
 
