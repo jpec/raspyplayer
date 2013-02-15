@@ -200,15 +200,50 @@ class Config(object):
     def fill(self):
         """Fill the setting window"""
         self.ui_path.insert(0, self.PATH)
-        self.ui_exc.insert(0, str(self.EXC))
-        self.ui_ext.insert(0, str(self.EXT))
+        l = ""
+        for i in self.EXC:
+            l = l + i + ","
+        if len(l) > 1:
+            l = l[0:-1]
+        self.ui_exc.insert(0, l)
+        l = ""
+        for i in self.EXT:
+            l = l + i + ","
+        if len(l) > 1:
+            l = l[0:-1]
+        self.ui_ext.insert(0, l)
         self.ui_db.insert(0, self.DB)
         self.ui_srt.insert(0, self.OMXSRT)
+
+    def reload(self):
+        """Load the conf from the setting window"""
+        self.PATH = self.ui_path.get()
+        l = self.ui_exc.get()
+        self.EXC = l.split(',')
+        l = self.ui_ext.get()
+        self.EXT = l.split(',')
+        self.DB = self.ui_db.get()
+        self.OMXSRT = self.ui_srt.get()
 
     def save(self):
         """Save the config"""
         print("*** Saving the configuration ***")
-        # TODO
+        self.reload()
+        if os.path.isfile(self.CONF):
+            f = open(self.CONF, 'w')
+            line = "DB=" + self.DB
+            f.write(line+"\n")
+            for i in self.EXC:
+                line = "EXC=" + i
+                f.write(line+"\n")
+            for i in self.EXT:
+                line = "EXT=" + i
+                f.write(line+"\n")
+            line = "PATH=" + self.PATH
+            f.write(line+"\n")
+            line = "OMXSRT=" + self.OMXSRT
+            f.write(line+"\n")
+            f.close()
 
     def createGui(self):
         """Create the GUI for Config"""
