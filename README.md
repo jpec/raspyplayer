@@ -41,7 +41,7 @@ Options:
 	DB=.raspyplayer.sqlite3
 
 	# OMXSRT - Omxplayer version can handle subtitles
-	OMXSRT=0
+	OMXSRT=1
 
 
 Mount SMB Folder at /media/nas

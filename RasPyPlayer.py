@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "2.0-dev"
+VERSION = "2.0-rc0"
 #-------------------------------------------------------------------------#
 # Author :  Julien Pecqueur (JPEC)
 # Email :   jpec@julienpecqueur.net
@@ -64,8 +64,12 @@ def scanFiles(db, cfg, path):
             # Directory
             scanFiles(db, cfg, filepath)
 
+#-------------------------------------------------------------------------#
+
 def lst2str(l):
-    """lst2str"""
+
+    """Transform list to string."""
+
     s = ""
     for i in l:
         s = s + i + ","
@@ -73,8 +77,12 @@ def lst2str(l):
         s = s[0:-1]
     return(s)
 
+#-------------------------------------------------------------------------#
+
 def str2lst(s):
-    """str2lst"""
+
+    """Transform string to list."""
+
     l = s.split(',')
     return(l)
 
@@ -130,7 +138,9 @@ class Config(object):
     """Configuration class"""
 
     def __init__(self):
+
         """Initialisation of the config object"""
+
         self.CONF = "/etc/raspyplayer.conf"
         # Values loaded from CONF file
         self.PATH = None
@@ -148,8 +158,12 @@ class Config(object):
         self.DBDRP = self.initDbDrp()
         self.DBCRT = self.initDbCrt()
 
+    #---------------------------------------------------------------------#
+
     def readConf(self):
+
         """Read the CONF file"""
+
         if os.path.isfile(self.CONF):
             f = open(self.CONF, 'r')
             for l in f.readlines():
@@ -179,56 +193,92 @@ class Config(object):
         else:
             return(False)
 
+    #---------------------------------------------------------------------#
+
     def initDbAdd(self):
+
         """Initialisation of the DBADD request"""
+
         res = "INSERT INTO files VALUES (?, ?)"
         return(res)
 
+    #---------------------------------------------------------------------#
+
     def initDbSrc(self):
+
         """Initialisation of the DBSRC request"""
+
         res = "SELECT * FROM files WHERE file LIKE ? ORDER BY file"
         return(res)
 
+    #---------------------------------------------------------------------#
+
     def initDbAll(self):
+
         """Initialisation of the DBALL request"""
+
         res = "SELECT * FROM files ORDER BY file"
         return(res)
 
+    #---------------------------------------------------------------------#
+
     def initDbDrp(self):
+
         """Initialisation of the DBDRP request"""
+
         res = "DROP TABLE files"
         return(res)
 
+    #---------------------------------------------------------------------#
+
     def initDbCrt(self):
+
         """Initialisation of the DBCRT request"""
+
         res = "CREATE TABLE files (file, path)"
         return(res)
 
+    #---------------------------------------------------------------------#
+
     def display(self, root):
+
         """Display the setting window"""
+
         if self.createGui():
             self.fill()
             self.root.mainloop()
         return(True)
 
+    #---------------------------------------------------------------------#
+    
     def fill(self):
+
         """Fill the setting window"""
+
         self.ui_path.insert(0, self.PATH)
         self.ui_exc.insert(0, lst2str(self.EXC))
         self.ui_ext.insert(0, lst2str(self.EXT))
         self.ui_db.insert(0, self.DB)
         self.ui_srt.insert(0, self.OMXSRT)
 
+    #---------------------------------------------------------------------#
+
     def reload(self):
+
         """Load the conf from the setting window"""
+
         self.PATH = self.ui_path.get()
         self.EXC = str2lst(self.ui_exc.get())
         self.EXT = str2lst(self.ui_ext.get())
         self.DB = self.ui_db.get()
         self.OMXSRT = self.ui_srt.get()
 
+    #---------------------------------------------------------------------#
+
     def save(self):
+
         """Save the config"""
+
         print("*** Saving the configuration ***")
         self.reload()
         if os.path.isfile(self.CONF):
@@ -247,8 +297,12 @@ class Config(object):
             f.write(line+"\n")
             f.close()
 
+    #---------------------------------------------------------------------#
+
     def createGui(self):
+
         """Create the GUI for Config"""
+
         print("*** Creating Configuration GUI ***")
         self.root = tkinter.Tk()
         self.root.title("Configuration")
@@ -299,7 +353,7 @@ class Config(object):
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
         # OMXSRT
         self.ui_srtlbl = tkinter.Label(self.ui_midframe,
-                                       text="OMXplayer handle subtitles (0 / 1)",
+                                       text="Enable subtitles (0 / 1)",
                                        justify=tkinter.LEFT,
                                         anchor=tkinter.W,
                                        font=font
@@ -325,7 +379,7 @@ class Config(object):
             )
         self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
         return(True)
-
+    #---------------------------------------------------------------------#
 
 #-------------------------------------------------------------------------#
 
@@ -334,15 +388,21 @@ class Db(object):
     """DataBase class"""
 
     def __init__(self, cfg):
+
         """Initialisation of the DB object"""
+
         self.cfg = cfg
         self.db = cfg.DB
         self.con = None
         self.cur = None
         self.new = False
 
+    #---------------------------------------------------------------------#
+
     def openDb(self):
+
         """Open the DB"""
+
         print("*** DB - Opening the database ***")
         new = False
         if not os.path.isfile(self.db):
@@ -353,28 +413,44 @@ class Db(object):
             self.createDb()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def createDb(self):
+
         """Create the DB"""
+
         print("*** DB - Creating the database ***")
         self.execSql(self.cfg.DBCRT, False)
         self.commitDb()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def dropDb(self):
+
         "Drop the DB"
+
         print("*** DB - Dropping the database ***")
         self.execSql(self.cfg.DBDRP, False)
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def initDb(self):
+
         """Initialisation of the DB"""
+
         print("*** DB - Initializing the database ***")
         self.dropDb()
         self.createDb()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def closeDb(self):
+
         """Close the DB"""
+
         print("*** DB - Closing the database ***")
         self.cur.close()
         self.con.close()
@@ -382,13 +458,21 @@ class Db(object):
         self.con = None
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def commitDb(self):
+
         """Commit"""
+
         print("*** DB - Commiting the database ***")
         self.con.commit()
 
+    #---------------------------------------------------------------------#
+
     def execSql(self, sql, bind):
+
         """Execute a SQL statement in DB"""
+
         if sql:
             if bind:
                 if DEBUG:
@@ -402,26 +486,40 @@ class Db(object):
         else:
             return(False)
 
+    #---------------------------------------------------------------------#
+
     def getAllMovies(self):
+
         """Return all movies from DB"""
+
         files = {}
         self.execSql(self.cfg.DBALL, False)
         for file, path in self.cur:
             files[file] = path
         return(files)
 
+    #---------------------------------------------------------------------#
+
     def getSrcMovies(self, src):
+
         """Return movies from DB with search pattern"""
+
         files = {}
         self.execSql(self.cfg.DBSRC, src)
         for file, path in self.cur:
             files[file] = path
         return(files)
 
+    #---------------------------------------------------------------------#
+
     def addMovie(self, file, filepath):
+
         """Add a movie in DB"""
+        
         self.execSql(self.cfg.DBADD, (file, filepath))
         return(True)
+
+    #---------------------------------------------------------------------#
 
 #-------------------------------------------------------------------------#
 
@@ -430,15 +528,21 @@ class Player(object):
     """Player class"""
 
     def __init__(self):
+
         """Initialisation of the Player object"""
+
         self.cfg = None
         self.db = None
         self.root = None
         self.files = {}
         self.start()
 
+    #---------------------------------------------------------------------#
+
     def start(self):
+
         """Start the Player"""
+
         print("*** Starting the Player ***")
         # Configuration
         self.cfg = Config()
@@ -455,31 +559,51 @@ class Player(object):
             error("Cannot read configuration file")
             return(False)
 
+    #---------------------------------------------------------------------#
+
     def stop(self):
+
         """Stop the Player"""
+
         print("*** Stopping the Player ***")
         self.db.closeDb()
         self.root.destroy()
 
+    #---------------------------------------------------------------------#
+
     def scanDB(self):
+
         """Add movies in DB"""
+
         print("*** Adding movies in database")
         scanFiles(self.db, self.cfg, self.cfg.PATH)
         self.db.commitDb()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def loadAllMovies(self):
+
         """Load movies from DB"""
+
         self.files = self.db.getAllMovies()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def loadSrcMovies(self, src):
+
         """Load movies matching search pattern"""
+
         self.files = self.db.getSrcMovies(src)
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def play(self, file):
+
         """Play a movie"""
+
         print("Playing {}".format(file))
         sub = file[0:-3] + "srt"
         if self.cfg.OMXSRT and os.path.isfile(sub):
@@ -491,46 +615,74 @@ class Player(object):
         os.system(cmd)
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def displayHelp(self):
+
         """Display help"""
+
         tkinter.messagebox.showinfo("Help...", getHelp())
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def displayConfig(self):
+
         """Display Config Window"""
+
         self.cfg.display(self.root)
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def playSelection(self):
+
         """Play selected files"""
+
         sel = self.ui_files.curselection()
         for i in sel:
             f = self.ui_files.get(i)
             self.play(self.files[f])
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def display(self):
+
         """Display the player"""
+
         self.createGui()
         self.refreshDataBase()
         self.root.mainloop()
 
+    #---------------------------------------------------------------------#
+
     def askToRefreshDataBase(self):
+
         """Ask to refresh database"""
+
         msg = "Do you want to refresh the movies database ?"
         res = tkinter.messagebox.askokcancel("RasPyPlayer", msg)
         if res:
             self.refreshDataBase()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def refreshDataBase(self):
+
         """Refresh the movies database"""
+
         scanFiles(self.db, self.cfg, self.cfg.PATH)
         self.refreshFilesList()
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def refreshFilesList(self):
+
         """Refresh the list of files"""
+
         src = self.ui_srcentry.get()
         # Empty variables :
         self.files = {}
@@ -555,8 +707,12 @@ class Player(object):
             self.ui_files.insert(tkinter.END, file)
         return(True)
 
+    #---------------------------------------------------------------------#
+
     def createGui(self):
+
         """Create the GUI for Player"""
+
         print("*** Creating GUI ***")
         self.root = tkinter.Tk()
         self.root.title("RasPyPlayer v{}".format(VERSION))
@@ -635,6 +791,8 @@ class Player(object):
                                      )
         self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
         return(True)
+
+    #---------------------------------------------------------------------#
 
 #-------------------------------------------------------------------------#
 
