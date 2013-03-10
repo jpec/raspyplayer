@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "2.0"
+VERSION = "2.0.1"
 #-------------------------------------------------------------------------#
 # Author :  Julien Pecqueur (JPEC)
 # Email :   jpec@julienpecqueur.net
@@ -107,13 +107,7 @@ def getHelp():
     Sources : https://github.com/jpec/RasPyPlayer
     Bugs : https://github.com/jpec/RasPyPlayer/issues
     License : GPL
-
-    Keyboard shortcuts in RasPyPlayer:
-    F1 : Help
-    F3 : Search
-    F4 : Play
-    F5 : Refresh
-
+    
     Keyboard shortcuts during playback:
     n : Previous subtitle
     m : Next subtitle
