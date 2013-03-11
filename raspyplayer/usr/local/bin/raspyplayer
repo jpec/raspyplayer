@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player for Raspberry Pi
 #-------------------------------------------------------------------------#
-VERSION = "2.0.1"
+VERSION = "2.1.0"
 #-------------------------------------------------------------------------#
 # Author :  Julien Pecqueur (JPEC)
 # Email :   jpec@julienpecqueur.net
@@ -107,19 +107,6 @@ def getHelp():
     Sources : https://github.com/jpec/RasPyPlayer
     Bugs : https://github.com/jpec/RasPyPlayer/issues
     License : GPL
-    
-    Keyboard shortcuts during playback:
-    n : Previous subtitle
-    m : Next subtitle
-    s : Toggle subtitle
-    q : Quit playback
-    p : Pause/Resume (space)
-    - : Lower volume
-    + : Higher volume
-    Left : Seek -30
-    Right : Seek +30
-    Down : Seek -600
-    Up : Seek +600
     """
     return(msg.format(VERSION))
 
@@ -141,10 +128,10 @@ class Config(object):
         self.EXC = []
         self.EXT = []
         self.DB = None
-        self.OMXSRT = None
         # Values hard coded
-        self.OMXCMD1='lxterminal --command \"omxplayer \\"{0}\\"\"'
-        self.OMXCMD2='lxterminal --command \"omxplayer --subtitles \\"{0}\\" \\"{1}\\"\"'
+        self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'  
+        self.OMXCMD1 = 'xterm -e omxplayer \"{0}\"'
+        self.OMXCMD2 = 'xterm -e omxplayer --subtitles \"{0}\" \"{1}\"'
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
@@ -178,11 +165,18 @@ class Config(object):
                     self.PATH = l[5:len(l)]
                     if DEBUG:
                         print(l)
-                elif len(l) >= 7 and l[0:7] == "OMXSRT=":
-                    self.OMXSRT = l[7:len(l)]
-                    if DEBUG:
-                        print(l)
             f.close()
+            return(True)
+        else:
+            return(False)
+
+    #---------------------------------------------------------------------#
+
+    def useOmx(self):
+
+        """We use OMXPLAYER ?"""
+
+        if os.path.isfile('/usr/bin/omxplayer'):
             return(True)
         else:
             return(False)
@@ -253,7 +247,6 @@ class Config(object):
         self.ui_exc.insert(0, lst2str(self.EXC))
         self.ui_ext.insert(0, lst2str(self.EXT))
         self.ui_db.insert(0, self.DB)
-        self.ui_srt.insert(0, self.OMXSRT)
 
     #---------------------------------------------------------------------#
 
@@ -265,7 +258,6 @@ class Config(object):
         self.EXC = str2lst(self.ui_exc.get())
         self.EXT = str2lst(self.ui_ext.get())
         self.DB = self.ui_db.get()
-        self.OMXSRT = self.ui_srt.get()
 
     #---------------------------------------------------------------------#
 
@@ -286,8 +278,6 @@ class Config(object):
                 line = "EXT=" + i
                 f.write(line+"\n")
             line = "PATH=" + self.PATH
-            f.write(line+"\n")
-            line = "OMXSRT=" + self.OMXSRT
             f.write(line+"\n")
             f.close()
 
@@ -345,16 +335,6 @@ class Config(object):
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_db = tkinter.Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
-        # OMXSRT
-        self.ui_srtlbl = tkinter.Label(self.ui_midframe,
-                                       text="Enable subtitles (0 / 1)",
-                                       justify=tkinter.LEFT,
-                                        anchor=tkinter.W,
-                                       font=font
-                                       )
-        self.ui_srtlbl.grid(row=5, column=0, padx=2, pady=2)
-        self.ui_srt = tkinter.Entry(self.ui_midframe, font=font)
-        self.ui_srt.grid(row=5, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
@@ -599,11 +579,14 @@ class Player(object):
         """Play a movie"""
 
         print("Playing {}".format(file))
-        sub = file[0:-3] + "srt"
-        if self.cfg.OMXSRT and os.path.isfile(sub):
-            cmd = self.cfg.OMXCMD2.format(sub, file)
+        if self.cfg.useOmx():
+            sub = file[0:-3] + "srt"
+            if os.path.isfile(sub):
+                cmd = self.cfg.OMXCMD2.format(sub, file)
+            else:
+                cmd = self.cfg.OMXCMD1.format(file)
         else:
-            cmd = self.cfg.OMXCMD1.format(file)
+            cmd = self.cfg.MPLRCMD.format(file)
         if DEBUG:
             print(cmd)
         os.system(cmd)
@@ -712,7 +695,7 @@ class Player(object):
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = tkinter.font.Font(self.root, size=20, family='Sans')
         self.root.attributes('-fullscreen', True)
-        self.root.attributes('-topmost', True)
+        #self.root.attributes('-topmost', True)
         # Top Frame (search group)
         self.ui_topframe = tkinter.Frame(self.root, borderwidth=2)
         self.ui_topframe.pack({"side": "top"})
