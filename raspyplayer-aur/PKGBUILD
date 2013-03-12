@@ -1,5 +1,5 @@
 # Maintainer: Julien Pecqueur (JPEC) <jpec[at]julienpecqueur[dot]net>
-pkgname=raspyplayer
+pkgname=raspyplayer-git
 pkgver=20130312
 pkgrel=1
 pkgdesc="A simple media player originally designed for the Raspberry Pi."
@@ -9,6 +9,7 @@ license=('GPL')
 depends=('python' 'tk' 'xterm' 'xdg-utils')
 optdepends=('mplayer' 'omxplayer')
 makedepends=('git')
+conflicts=('raspyplayer')
 md5sums=('SKIP')
 _gitroot="git://github.com/jpec/RasPyPlayer.git"
 _gitname="RasPyPlayer"
@@ -21,11 +22,12 @@ build() {
     cd ${_gitname}
     git reset --hard
     git pull origin
-    msg "The local files are updated..."updated...
+    msg "The local files are updated..."
   else
     msg "Cloning git repo..."
     git clone ${_gitroot}
-  fi    
+  fi
+  git checkout 
   msg "GIT checkout done."
 }
 
