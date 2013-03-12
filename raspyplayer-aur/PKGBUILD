@@ -14,7 +14,6 @@ md5sums=('SKIP')
 _gitroot="git://github.com/jpec/RasPyPlayer.git"
 _gitname="RasPyPlayer"
 
-
 build() {
   cd ${srcdir}/
   msg "Connecting to the GIT server...."
@@ -27,11 +26,10 @@ build() {
     msg "Cloning git repo..."
     git clone ${_gitroot}
   fi
-  git checkout 
+  git reset --hard
   msg "GIT checkout done."
 }
 
- 
 package() {
   cd "${srcdir}/${_gitname}"
   # install files
