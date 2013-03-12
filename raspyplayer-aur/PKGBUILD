@@ -8,16 +8,7 @@ arch=('any')
 license=('GPL')
 depends=('python' 'tk' 'xterm' 'xdg-utils')
 optdepends=('mplayer' 'omxplayer')
-makedepends=()
-conflicts=()
-replaces=()
-backup=()
 source=("http://raspyplayer.org/${pkgname}-${pkgver}.tar.gz")
-
-build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  # do nothing
-}
  
 package() {
   cd "${srcdir}/${pkgname}-${pkgver}"
