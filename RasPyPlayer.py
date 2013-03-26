@@ -129,7 +129,7 @@ class Config(object):
         self.EXT = []
         self.DB = None
         # Values hard coded
-        self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'  
+        self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'
         self.OMXCMD1 = 'xterm -e omxplayer \"{0}\"'
         self.OMXCMD2 = 'xterm -e omxplayer --subtitles \"{0}\" \"{1}\"'
         # DB*** - SQL requests
@@ -141,11 +141,23 @@ class Config(object):
 
     #---------------------------------------------------------------------#
 
+    def clearConf(self):
+
+        """Clear conf settinfs"""
+
+        self.PATH = None
+        self.EXC = []
+        self.EXT = []
+        self.DB = None
+
+    #---------------------------------------------------------------------#
+
     def readConf(self):
 
         """Read the CONF file"""
 
         if os.path.isfile(self.CONF):
+            self.clearConf()
             f = open(self.CONF, 'r')
             for l in f.readlines():
                 l = l.replace("\n", "")
@@ -169,6 +181,31 @@ class Config(object):
             return(True)
         else:
             return(False)
+
+    #---------------------------------------------------------------------#
+
+    def checkConf(self):
+
+        """Check the CONF"""
+
+        res = True
+        if not self.DB:
+            self.errorVar("Database name", "n/a")
+            res = False
+        if not self.PATH:
+            self.errorVar("Root directory", "n/a")
+            res = False
+        return(res)
+
+    #---------------------------------------------------------------------#
+
+    def errorVar(self, var, val):
+
+        """Ask user to set correct setting"""
+
+        msg = "{0} is not correct :\n'{1}'\nPlease set it in Config"
+        tkinter.messagebox.showerror("WARNING !", msg.format(var, str(val)))
+        return(True)
 
     #---------------------------------------------------------------------#
 
@@ -238,15 +275,17 @@ class Config(object):
         return(True)
 
     #---------------------------------------------------------------------#
-    
+
     def fill(self):
 
         """Fill the setting window"""
 
-        self.ui_path.insert(0, self.PATH)
+        if self.PATH:
+            self.ui_path.insert(0, self.PATH)
         self.ui_exc.insert(0, lst2str(self.EXC))
         self.ui_ext.insert(0, lst2str(self.EXT))
-        self.ui_db.insert(0, self.DB)
+        if self.DB:
+            self.ui_db.insert(0, self.DB)
 
     #---------------------------------------------------------------------#
 
@@ -267,19 +306,20 @@ class Config(object):
 
         print("*** Saving the configuration ***")
         self.reload()
-        if os.path.isfile(self.CONF):
-            f = open(self.CONF, 'w')
-            line = "DB=" + self.DB
+        f = open(self.CONF, 'w')
+        line = "DB=" + self.DB
+        f.write(line+"\n")
+        for i in self.EXC:
+            line = "EXC=" + i
             f.write(line+"\n")
-            for i in self.EXC:
-                line = "EXC=" + i
-                f.write(line+"\n")
-            for i in self.EXT:
-                line = "EXT=" + i
-                f.write(line+"\n")
-            line = "PATH=" + self.PATH
+        for i in self.EXT:
+            line = "EXT=" + i
             f.write(line+"\n")
-            f.close()
+        line = "PATH=" + self.PATH
+        f.write(line+"\n")
+        f.close()
+        if self.checkConf():
+            self.root.destroy()
 
     #---------------------------------------------------------------------#
 
@@ -489,7 +529,7 @@ class Db(object):
     def addMovie(self, file, filepath):
 
         """Add a movie in DB"""
-        
+
         self.execSql(self.cfg.DBADD, (file, filepath))
         return(True)
 
@@ -520,6 +560,8 @@ class Player(object):
         print("*** Starting the Player ***")
         # Configuration
         self.cfg = Config()
+        while not self.cfg.readConf() or not self.cfg.checkConf():
+            self.displayConfig()
         if self.cfg.readConf():
             # Database
             self.db = Db(self.cfg)
@@ -650,9 +692,10 @@ class Player(object):
 
         """Refresh the movies database"""
 
-        scanFiles(self.db, self.cfg, self.cfg.PATH)
-        self.refreshFilesList()
-        return(True)
+        if os.path.isdir(self.cfg.PATH):
+            scanFiles(self.db, self.cfg, self.cfg.PATH)
+            self.refreshFilesList()
+            return(True)
 
     #---------------------------------------------------------------------#
 
