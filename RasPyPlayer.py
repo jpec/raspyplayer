@@ -73,7 +73,7 @@ def lst2str(l):
     s = ""
     for i in l:
         s = s + i + ","
-    if len(s) > 1:
+    if len(s) > 1 or s == ",":
         s = s[0:-1]
     return(s)
 
