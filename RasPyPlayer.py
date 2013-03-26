@@ -37,11 +37,28 @@ DEBUG = False
 # MODULES
 #-------------------------------------------------------------------------#
 
-import os
-import sqlite3
-import tkinter
-import tkinter.messagebox
-import tkinter.font
+from os import listdir
+from os import system
+from os.path import isdir
+from os.path import isfile
+from os.path import basename
+from sqlite3 import connect
+from tkinter import Tk
+from tkinter import Frame
+from tkinter import Label
+from tkinter import Entry
+from tkinter import Button
+from tkinter import Listbox
+from tkinter import Scrollbar
+from tkinter import EXTENDED
+from tkinter import BOTH
+from tkinter import W
+from tkinter import Y
+from tkinter import LEFT
+from tkinter import RIGHT
+from tkinter import END
+from tkinter import messagebox
+from tkinter.font import Font
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -53,13 +70,13 @@ def scanFiles(db, cfg, path):
 
     if DEBUG:
         print("Scan {0}".format(path))
-    for file in os.listdir(path):
+    for file in listdir(path):
         filepath = path+"/"+file
         if len(file) > 4 and file[-4: len(file)] in cfg.EXT \
             and file[0:1] != ".":
             # File
-            db.addMovie(os.path.basename(file), filepath)
-        elif os.path.isdir(filepath) and not file in cfg.EXC \
+            db.addMovie(basename(file), filepath)
+        elif isdir(filepath) and not file in cfg.EXC \
             and file[0:1] != ".":
             # Directory
             scanFiles(db, cfg, filepath)
@@ -156,7 +173,7 @@ class Config(object):
 
         """Read the CONF file"""
 
-        if os.path.isfile(self.CONF):
+        if isfile(self.CONF):
             self.clearConf()
             f = open(self.CONF, 'r')
             for l in f.readlines():
@@ -204,7 +221,7 @@ class Config(object):
         """Ask user to set correct setting"""
 
         msg = "{0} is not correct :\n'{1}'\nPlease set it in Config"
-        tkinter.messagebox.showerror("WARNING !", msg.format(var, str(val)))
+        messagebox.showerror("WARNING !", msg.format(var, str(val)))
         return(True)
 
     #---------------------------------------------------------------------#
@@ -213,7 +230,7 @@ class Config(object):
 
         """We use OMXPLAYER ?"""
 
-        if os.path.isfile('/usr/bin/omxplayer'):
+        if isfile('/usr/bin/omxplayer'):
             return(True)
         else:
             return(False)
@@ -328,69 +345,69 @@ class Config(object):
         """Create the GUI for Config"""
 
         print("*** Creating Configuration GUI ***")
-        self.root = tkinter.Tk()
+        self.root = Tk()
         self.root.title("Configuration")
         self.root.attributes('-topmost', True)
-        font = tkinter.font.Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=20, family='Sans')
         # Middle Frame (config group)
-        self.ui_midframe = tkinter.Frame(self.root, borderwidth=2)
-        self.ui_midframe.pack(fill=tkinter.BOTH, expand=1)
+        self.ui_midframe = Frame(self.root, borderwidth=2)
+        self.ui_midframe.pack(fill=BOTH, expand=1)
         # PATH
-        self.ui_pathlbl = tkinter.Label(self.ui_midframe,
-                                        text="Movies root folder",
-                                        justify=tkinter.LEFT,
-                                        anchor=tkinter.W,
-                                        font=font
-                                        )
+        self.ui_pathlbl = Label(self.ui_midframe,
+                                text="Movies root folder",
+                                justify=LEFT,
+                                anchor=W,
+                                font=font
+                                )
         self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
-        self.ui_path = tkinter.Entry(self.ui_midframe, font=font)
+        self.ui_path = Entry(self.ui_midframe, font=font)
         self.ui_path.grid(row=1, column=1, padx=2, pady=2)
         # EXC
-        self.ui_exclbl = tkinter.Label(self.ui_midframe,
-                                       text="Directories to exclude",
-                                       justify=tkinter.LEFT,
-                                        anchor=tkinter.W,
-                                       font=font
-                                       )
+        self.ui_exclbl = Label(self.ui_midframe,
+                               text="Directories to exclude",
+                               justify=LEFT,
+                               anchor=W,
+                               font=font
+                               )
         self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
-        self.ui_exc = tkinter.Entry(self.ui_midframe, font=font)
+        self.ui_exc = Entry(self.ui_midframe, font=font)
         self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
         # EXT
-        self.ui_extlbl = tkinter.Label(self.ui_midframe,
-                                       text="Movies extensions",
-                                       justify=tkinter.LEFT,
-                                        anchor=tkinter.W,
-                                       font=font
-                                       )
+        self.ui_extlbl = Label(self.ui_midframe,
+                               text="Movies extensions",
+                               justify=LEFT,
+                               anchor=W,
+                               font=font
+                               )
         self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
-        self.ui_ext = tkinter.Entry(self.ui_midframe, font=font)
+        self.ui_ext = Entry(self.ui_midframe, font=font)
         self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
         # DB
-        self.ui_dblbl = tkinter.Label(self.ui_midframe,
-                                      text="Database name",
-                                      justify=tkinter.LEFT,
-                                        anchor=tkinter.W,
-                                      font=font
-                                      )
+        self.ui_dblbl = Label(self.ui_midframe,
+                              text="Database name",
+                              justify=LEFT,
+                              anchor=W,
+                              font=font
+                              )
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
-        self.ui_db = tkinter.Entry(self.ui_midframe, font=font)
+        self.ui_db = Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
-        self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
         # Button Save
-        self.ui_butsave = tkinter.Button(self.ui_botframe,
-            text="Save",
-            command=self.save,
-            font=font
-            )
+        self.ui_butsave = Button(self.ui_botframe,
+                                 text="Save",
+                                 command=self.save,
+                                 font=font
+                                 )
         self.ui_butsave.grid(row=1, column=0, padx=2, pady=2)
         # Button Close
-        self.ui_butquit = tkinter.Button(self.ui_botframe,
-            text="Close",
-            command=self.root.destroy,
-            font=font
-            )
+        self.ui_butquit = Button(self.ui_botframe,
+                                 text="Close",
+                                 command=self.root.destroy,
+                                 font=font
+                                 )
         self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
         return(True)
     #---------------------------------------------------------------------#
@@ -419,9 +436,9 @@ class Db(object):
 
         print("*** DB - Opening the database ***")
         new = False
-        if not os.path.isfile(self.db):
+        if not isfile(self.db):
             new = True
-        self.con = sqlite3.connect(self.db)
+        self.con = connect(self.db)
         self.cur = self.con.cursor()
         if new:
             self.createDb()
@@ -623,7 +640,7 @@ class Player(object):
         print("Playing {}".format(file))
         if self.cfg.useOmx():
             sub = file[0:-3] + "srt"
-            if os.path.isfile(sub):
+            if isfile(sub):
                 cmd = self.cfg.OMXCMD2.format(sub, file)
             else:
                 cmd = self.cfg.OMXCMD1.format(file)
@@ -631,7 +648,7 @@ class Player(object):
             cmd = self.cfg.MPLRCMD.format(file)
         if DEBUG:
             print(cmd)
-        os.system(cmd)
+        system(cmd)
         return(True)
 
     #---------------------------------------------------------------------#
@@ -640,7 +657,7 @@ class Player(object):
 
         """Display help"""
 
-        tkinter.messagebox.showinfo("Help...", getHelp())
+        messagebox.showinfo("Help...", getHelp())
         return(True)
 
     #---------------------------------------------------------------------#
@@ -681,7 +698,7 @@ class Player(object):
         """Ask to refresh database"""
 
         msg = "Do you want to refresh the movies database ?"
-        res = tkinter.messagebox.askokcancel("RasPyPlayer", msg)
+        res = messagebox.askokcancel("RasPyPlayer", msg)
         if res:
             self.refreshDataBase()
         return(True)
@@ -692,7 +709,7 @@ class Player(object):
 
         """Refresh the movies database"""
 
-        if os.path.isdir(self.cfg.PATH):
+        if isdir(self.cfg.PATH):
             scanFiles(self.db, self.cfg, self.cfg.PATH)
             self.refreshFilesList()
             return(True)
@@ -707,7 +724,7 @@ class Player(object):
         # Empty variables :
         self.files = {}
         if self.ui_files.size() > 0:
-            self.ui_files.delete(0, tkinter.END)
+            self.ui_files.delete(0, END)
         # Get files in DB :
         if src == "" or src == "*":
             if DEBUG:
@@ -724,7 +741,7 @@ class Player(object):
         liste.sort(key=str.lower)
         # Display result :
         for file in liste:
-            self.ui_files.insert(tkinter.END, file)
+            self.ui_files.insert(END, file)
         return(True)
 
     #---------------------------------------------------------------------#
@@ -734,81 +751,81 @@ class Player(object):
         """Create the GUI for Player"""
 
         print("*** Creating GUI ***")
-        self.root = tkinter.Tk()
+        self.root = Tk()
         self.root.title("RasPyPlayer v{}".format(VERSION))
-        font = tkinter.font.Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=20, family='Sans')
         self.root.attributes('-fullscreen', True)
         #self.root.attributes('-topmost', True)
         # Top Frame (search group)
-        self.ui_topframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_topframe = Frame(self.root, borderwidth=2)
         self.ui_topframe.pack({"side": "top"})
         # Label search
-        self.ui_srclabel = tkinter.Label(self.ui_topframe,
-                                     text="Search:",
-                                     font=font
-                                     )
+        self.ui_srclabel = Label(self.ui_topframe,
+                                 text="Search:",
+                                 font=font
+                                 )
         self.ui_srclabel.grid(row=1, column=0, padx=2, pady=2)
         # Entry search
-        self.ui_srcentry = tkinter.Entry(self.ui_topframe, font=font)
+        self.ui_srcentry = Entry(self.ui_topframe, font=font)
         self.ui_srcentry.grid(row=1, column=1, padx=2, pady=2)
         # Button search
-        self.ui_srcexec = tkinter.Button(self.ui_topframe,
-                                     text="Search",
-                                     command=self.refreshFilesList,
-                                     font=font
-                                     )
+        self.ui_srcexec = Button(self.ui_topframe,
+                                 text="Search",
+                                 command=self.refreshFilesList,
+                                 font=font
+                                 )
         self.ui_srcexec.grid(row=1, column=2, padx=2, pady=2)
         # Middle Frame (files group)
-        self.ui_midframe = tkinter.Frame(self.root, borderwidth=2)
-        self.ui_midframe.pack(fill=tkinter.BOTH, expand=1)
+        self.ui_midframe = Frame(self.root, borderwidth=2)
+        self.ui_midframe.pack(fill=BOTH, expand=1)
         # Files liste and scrollbar
-        self.ui_files = tkinter.Listbox(self.ui_midframe,
-                                       selectmode=tkinter.EXTENDED,
-                                       font=font
-                                       )
-        self.ui_files.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
-        self.ui_filesscroll = tkinter.Scrollbar(self.ui_midframe,
-                                          command=self.ui_files.yview
-                                          )
+        self.ui_files = Listbox(self.ui_midframe,
+                                selectmode=EXTENDED,
+                                font=font
+                                )
+        self.ui_files.pack(side=LEFT, fill=BOTH, expand=1)
+        self.ui_filesscroll = Scrollbar(self.ui_midframe,
+                                        command=self.ui_files.yview
+                                        )
         self.ui_files.configure(yscrollcommand=self.ui_filesscroll.set)
-        self.ui_filesscroll.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        self.ui_filesscroll.pack(side=RIGHT, fill=Y)
         # Bottom Frame (buttons group)
-        self.ui_botframe = tkinter.Frame(self.root, borderwidth=2)
+        self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
         # Button Play
-        self.ui_butplay = tkinter.Button(self.ui_botframe,
-                                     text="Play",
-                                     command=self.playSelection,
-                                     font=font
-                                     )
+        self.ui_butplay = Button(self.ui_botframe,
+                                 text="Play",
+                                 command=self.playSelection,
+                                 font=font
+                                 )
         self.ui_butplay.grid(row=1, column=0, padx=2, pady=2)
         # Button Refresh
-        self.ui_butscan = tkinter.Button(self.ui_botframe,
-                                     text="Scan",
-                                     command=self.askToRefreshDataBase,
-                                     font=font
-                                     )
+        self.ui_butscan = Button(self.ui_botframe,
+                                 text="Scan",
+                                 command=self.askToRefreshDataBase,
+                                 font=font
+                                 )
         self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
         # Button Config
-        self.ui_butconf = tkinter.Button(self.ui_botframe,
-                                     text="Config",
-                                     command=self.displayConfig,
-                                     font=font
-                                     )
+        self.ui_butconf = Button(self.ui_botframe,
+                                 text="Config",
+                                 command=self.displayConfig,
+                                 font=font
+                                 )
         self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
         # Button Help
-        self.ui_buthelp = tkinter.Button(self.ui_botframe,
-                                     text="Help",
-                                     command=self.displayHelp,
-                                     font=font
-                                     )
+        self.ui_buthelp = Button(self.ui_botframe,
+                                 text="Help",
+                                 command=self.displayHelp,
+                                 font=font
+                                 )
         self.ui_buthelp.grid(row=1, column=3, padx=2, pady=2)
         # Button Quit
-        self.ui_butquit = tkinter.Button(self.ui_botframe,
-                                     text="Quit",
-                                     command=self.stop,
-                                     font=font
-                                     )
+        self.ui_butquit = Button(self.ui_botframe,
+                                 text="Quit",
+                                 command=self.stop,
+                                 font=font
+                                 )
         self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
         return(True)
 
