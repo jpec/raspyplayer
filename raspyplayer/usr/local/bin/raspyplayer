@@ -59,6 +59,7 @@ from tkinter import RIGHT
 from tkinter import END
 from tkinter import messagebox
 from tkinter.font import Font
+from time import sleep
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -126,6 +127,22 @@ def getHelp():
     License : GPL
     """
     return(msg.format(VERSION))
+
+#-------------------------------------------------------------------------#
+
+def playScreen():
+
+    """Draw a dark background."""
+
+    print("*** Drawing the PlayScreen ***")
+    ps = Tk()
+    ps.title("Playing...")
+    ps.attributes('-fullscreen', True)
+    ps.configure(background='black')
+    lb = Label(ps, text="Playing...", background='black', foreground='grey')
+    lb.pack()
+    ps.update_idletasks()
+    return(ps)
 
 #-------------------------------------------------------------------------#
 # CLASSES
@@ -676,9 +693,11 @@ class Player(object):
         """Play selected files"""
 
         sel = self.ui_files.curselection()
+        ps = playScreen()
         for i in sel:
             f = self.ui_files.get(i)
             self.play(self.files[f])
+        ps.destroy()
         return(True)
 
     #---------------------------------------------------------------------#
