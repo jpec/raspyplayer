@@ -1,7 +1,7 @@
 # Maintainer: Julien Pecqueur (JPEC) <jpec[at]julienpecqueur[dot]net>
-pkgname=raspyplayer-git
-pkgver=20130312
-pkgrel=3
+pkgname=raspyplayer
+pkgver=v2.0.17-ga5a27ce
+pkgrel=1
 pkgdesc="A simple media player originally designed for the Raspberry Pi."
 url="http://raspyplayer.org"
 arch=('any')
@@ -9,32 +9,24 @@ license=('GPL')
 depends=('python' 'tk' 'xterm' 'xdg-utils')
 optdepends=('mplayer' 'omxplayer')
 makedepends=('git')
-conflicts=('raspyplayer')
 md5sums=('SKIP')
-_gitroot="git://github.com/jpec/RasPyPlayer.git"
+source=("git://github.com/jpec/RasPyPlayer.git#branch=master")
 _gitname="RasPyPlayer"
 
-build() {
-  cd ${srcdir}/
-  msg "Connecting to the GIT server...."
-  if [[ -d ${srcdir}/${_gitname} ]] ; then
-    cd ${_gitname}
-    git reset --hard
-    git pull origin
-    msg "The local files are updated..."
-  else
-    msg "Cloning git repo..."
-    git clone ${_gitroot}
-    cd ${_gitname}
-  fi
-  git reset --hard
-  msg "GIT checkout done."
+pkgver() {
+  cd "$_gitname"
+  echo $(git describe --always | sed 's|-|.|g')
+  # for git, if the repo has no tags, comment out the above and uncomment the next line:
+  #echo "$(git shortlog | grep -c '\s\+').$(git describe --always)"
+  # This will give you a count of the total commits and the hash of the commit you are on.
+  # Useful if you're making a repository with git packages so that they can have sequential
+  # version numbers. (Else a pacman -Syu may not update the package)
 }
-
+ 
 package() {
-  cd "${srcdir}/${_gitname}"
+  cd "$_gitname"
   # install files
-  install -Dm755 RasPyPlayer.py "$pkgdir/usr/local/bin/raspyplayer"
+  install -Dm752 RasPyPlayer.py "$pkgdir/usr/local/bin/raspyplayer"
   install -Dm666 raspyplayer.conf "$pkgdir/etc/raspyplayer.conf"
   install -Dm644 raspyplayer.desktop "$pkgdir/usr/share/applications/raspyplayer.desktop"
   install -Dm644 raspyplayer.png "$pkgdir/usr/share/pixmaps/raspyplayer.png"
