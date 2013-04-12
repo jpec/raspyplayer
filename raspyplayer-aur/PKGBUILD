@@ -1,6 +1,6 @@
 # Maintainer: Julien Pecqueur (JPEC) <jpec[at]julienpecqueur[dot]net>
 pkgname=raspyplayer
-pkgver=v2.0.17-ga5a27ce
+pkgver=2.1.0
 pkgrel=1
 pkgdesc="A simple media player originally designed for the Raspberry Pi."
 url="http://raspyplayer.org"
@@ -15,7 +15,7 @@ _gitname="RasPyPlayer"
 
 pkgver() {
   cd "$_gitname"
-  echo $(git describe --always | sed 's|-|.|g')
+  echo $(git describe --tags | sed 's|-|.|g')
   # for git, if the repo has no tags, comment out the above and uncomment the next line:
   #echo "$(git shortlog | grep -c '\s\+').$(git describe --always)"
   # This will give you a count of the total commits and the hash of the commit you are on.
