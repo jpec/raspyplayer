@@ -700,7 +700,7 @@ class Player(object):
         """Ask to refresh database"""
 
         msg = "Do you want to refresh the movies database ?"
-        if messagebox.askokcancel("RasPyPlayer", msg)
+        if messagebox.askokcancel("RasPyPlayer", msg):
             self.refreshDataBase()
         return(True)
 
