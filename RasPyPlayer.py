@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.1.0"
+VERSION = "2.2.0-dev"
 #-------------------------------------------------------------------------#
 # Author :  Julien Pecqueur (JPEC)
 # Email :   jpec@julienpecqueur.net
@@ -59,7 +59,6 @@ from tkinter import RIGHT
 from tkinter import END
 from tkinter import messagebox
 from tkinter.font import Font
-from time import sleep
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -125,6 +124,13 @@ def getHelp():
     Sources : https://github.com/jpec/RasPyPlayer
     Bugs : https://github.com/jpec/RasPyPlayer/issues
     License : GPL
+
+    Keyboard shortcuts :
+    <F1> HELP
+    <F2> CONFIG
+    <F3> SEARCH
+    <F5> SCAN
+    <F12> QUIT
     """
     return(msg.format(VERSION))
 
@@ -132,14 +138,14 @@ def getHelp():
 
 def playScreen():
 
-    """Draw a dark background."""
+    """Draw a dark bg."""
 
     print("*** Drawing the PlayScreen ***")
     ps = Tk()
     ps.title("Playing...")
     ps.attributes('-fullscreen', True)
-    ps.configure(background='black')
-    lb = Label(ps, text="Playing...", background='black', foreground='grey')
+    ps.configure(bg='black')
+    lb = Label(ps, text="Playing...", bg='black', fg='grey')
     lb.pack()
     ps.update_idletasks()
     return(ps)
@@ -615,9 +621,11 @@ class Player(object):
 
         """Stop the Player"""
 
-        print("*** Stopping the Player ***")
-        self.db.closeDb()
-        self.root.destroy()
+        msg = "Do you want to quit RasPyPlayer ?"
+        if messagebox.askokcancel("RasPyPlayer", msg):
+            print("*** Stopping the Player ***")
+            self.db.closeDb()
+            self.root.destroy()
 
     #---------------------------------------------------------------------#
 
@@ -765,6 +773,26 @@ class Player(object):
 
     #---------------------------------------------------------------------#
 
+    def evtPlay(self, evt):
+        self.playSelection()
+
+    def evtRefresh(self, evt):
+        self.refreshFilesList()
+
+    def evtScan(self, evt):
+        self.askToRefreshDataBase()
+
+    def evtCfg(self, cfg):
+        self.displayConfig()
+
+    def evtHelp(self, evt):
+        self.displayHelp()
+
+    def evtQuit(self, evt):
+        self.stop()
+
+    #---------------------------------------------------------------------#
+
     def createGui(self):
 
         """Create the GUI for Player"""
@@ -787,6 +815,7 @@ class Player(object):
         # Entry search
         self.ui_srcentry = Entry(self.ui_topframe, font=font)
         self.ui_srcentry.grid(row=1, column=1, padx=2, pady=2)
+        self.ui_srcentry.bind("<Return>", self.evtRefresh)
         # Button search
         self.ui_srcexec = Button(self.ui_topframe,
                                  text="Search",
@@ -803,6 +832,7 @@ class Player(object):
                                 font=font
                                 )
         self.ui_files.pack(side=LEFT, fill=BOTH, expand=1)
+        self.ui_files.bind("<Return>", self.evtPlay)
         self.ui_filesscroll = Scrollbar(self.ui_midframe,
                                         command=self.ui_files.yview
                                         )
@@ -846,6 +876,13 @@ class Player(object):
                                  font=font
                                  )
         self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
+
+        # General bindings
+        self.root.bind("<F1>", self.evtHelp)
+        self.root.bind("<F2>", self.evtCfg)
+        self.root.bind("<F3>", self.evtRefresh)
+        self.root.bind("<F5>", self.evtScan)
+        self.root.bind("<F12>", self.evtQuit)
         return(True)
 
     #---------------------------------------------------------------------#
