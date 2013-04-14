@@ -72,8 +72,7 @@ def scanFiles(db, cfg, path):
         print("Scan {0}".format(path))
     for file in listdir(path):
         filepath = path+"/"+file
-        if len(file) > 4 and file[-4: len(file)] in cfg.EXT \
-            and file[0:1] != ".":
+        if len(file) > 4 and file[-4: len(file)] in cfg.EXT and file[0:1] != ".":
             # File
             db.addMovie(basename(file), filepath)
         elif isdir(filepath) and not file in cfg.EXC \
@@ -116,22 +115,19 @@ def error(msg):
 def getHelp():
 
     """Return help text"""
-    msg = """
-    RasPyPlayer, v{0}
-    Author : Julien Pecqueur (JPEC)
-    Email : jpec@julienpecqueur.net
-    Home : http://raspyplayer.org
-    Sources : https://github.com/jpec/RasPyPlayer
-    Bugs : https://github.com/jpec/RasPyPlayer/issues
-    License : GPL
 
-    Keyboard shortcuts :
-    <F1> HELP
-    <F2> CONFIG
-    <F3> SEARCH
-    <F5> SCAN
-    <F12> QUIT
-    """
+    msg = "RasPyPlayer, v{0}\n"
+    msg += "Author : Julien Pecqueur (JPEC)\n"
+    msg += "Mail : jpec@julienpecqueur.net\n"
+    msg += "Home : http://raspyplayer.org\n"
+    msg += "License : GPL\n"
+    msg += "\n"
+    msg += "Keyboard shortcuts :\n"
+    msg += "<F1> HELP\n"
+    msg += "<F2> CONFIG\n"
+    msg += "<F3> SEARCH\n"
+    msg += "<F5> SCAN\n"
+    msg += "<F12> QUIT\n"
     return(msg.format(VERSION))
 
 #-------------------------------------------------------------------------#
@@ -183,7 +179,7 @@ class Config(object):
 
     def clearConf(self):
 
-        """Clear conf settinfs"""
+        """Clear conf settings"""
 
         self.PATH = None
         self.EXC = []
@@ -376,42 +372,26 @@ class Config(object):
         self.ui_midframe = Frame(self.root, borderwidth=2)
         self.ui_midframe.pack(fill=BOTH, expand=1)
         # PATH
-        self.ui_pathlbl = Label(self.ui_midframe,
-                                text="Movies root folder",
-                                justify=LEFT,
-                                anchor=W,
-                                font=font
-                                )
+        self.ui_pathlbl = Label(self.ui_midframe, text="Movies root folder",
+            justify=LEFT, anchor=W, font=font)
         self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
         self.ui_path = Entry(self.ui_midframe, font=font)
         self.ui_path.grid(row=1, column=1, padx=2, pady=2)
         # EXC
-        self.ui_exclbl = Label(self.ui_midframe,
-                               text="Directories to exclude",
-                               justify=LEFT,
-                               anchor=W,
-                               font=font
-                               )
+        self.ui_exclbl = Label(self.ui_midframe, text="Directories to exclude",
+            justify=LEFT, anchor=W, font=font)
         self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
         self.ui_exc = Entry(self.ui_midframe, font=font)
         self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
         # EXT
-        self.ui_extlbl = Label(self.ui_midframe,
-                               text="Movies extensions",
-                               justify=LEFT,
-                               anchor=W,
-                               font=font
-                               )
+        self.ui_extlbl = Label(self.ui_midframe, text="Movies extensions",
+            justify=LEFT, anchor=W, font=font )
         self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
         self.ui_ext = Entry(self.ui_midframe, font=font)
         self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
         # DB
-        self.ui_dblbl = Label(self.ui_midframe,
-                              text="Database name",
-                              justify=LEFT,
-                              anchor=W,
-                              font=font
-                              )
+        self.ui_dblbl = Label(self.ui_midframe, text="Database name",
+            justify=LEFT, anchor=W, font=font )
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_db = Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
@@ -419,20 +399,15 @@ class Config(object):
         self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
         # Button Save
-        self.ui_butsave = Button(self.ui_botframe,
-                                 text="Save",
-                                 command=self.save,
-                                 font=font
-                                 )
+        self.ui_butsave = Button(self.ui_botframe, text="Save",
+            command=self.save, font=font)
         self.ui_butsave.grid(row=1, column=0, padx=2, pady=2)
         # Button Close
-        self.ui_butquit = Button(self.ui_botframe,
-                                 text="Close",
-                                 command=self.root.destroy,
-                                 font=font
-                                 )
+        self.ui_butquit = Button(self.ui_botframe, text="Close",
+            command=self.root.destroy, font=font)
         self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
         return(True)
+
     #---------------------------------------------------------------------#
 
 #-------------------------------------------------------------------------#
@@ -482,7 +457,7 @@ class Db(object):
 
     def dropDb(self):
 
-        "Drop the DB"
+        """Drop the DB"""
 
         print("*** DB - Dropping the database ***")
         self.execSql(self.cfg.DBDRP, False)
@@ -725,8 +700,7 @@ class Player(object):
         """Ask to refresh database"""
 
         msg = "Do you want to refresh the movies database ?"
-        res = messagebox.askokcancel("RasPyPlayer", msg)
-        if res:
+        if messagebox.askokcancel("RasPyPlayer", msg)
             self.refreshDataBase()
         return(True)
 
@@ -802,79 +776,58 @@ class Player(object):
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = Font(self.root, size=20, family='Sans')
         self.root.attributes('-fullscreen', True)
-        #self.root.attributes('-topmost', True)
+
         # Top Frame (search group)
         self.ui_topframe = Frame(self.root, borderwidth=2)
         self.ui_topframe.pack({"side": "top"})
         # Label search
-        self.ui_srclabel = Label(self.ui_topframe,
-                                 text="Search:",
-                                 font=font
-                                 )
+        self.ui_srclabel = Label(self.ui_topframe, text="Search:",
+            font=font)
         self.ui_srclabel.grid(row=1, column=0, padx=2, pady=2)
         # Entry search
         self.ui_srcentry = Entry(self.ui_topframe, font=font)
         self.ui_srcentry.grid(row=1, column=1, padx=2, pady=2)
         self.ui_srcentry.bind("<Return>", self.evtRefresh)
         # Button search
-        self.ui_srcexec = Button(self.ui_topframe,
-                                 text="Search",
-                                 command=self.refreshFilesList,
-                                 font=font
-                                 )
+        self.ui_srcexec = Button(self.ui_topframe, text="Search",
+            command=self.refreshFilesList, font=font)
         self.ui_srcexec.grid(row=1, column=2, padx=2, pady=2)
+
         # Middle Frame (files group)
         self.ui_midframe = Frame(self.root, borderwidth=2)
         self.ui_midframe.pack(fill=BOTH, expand=1)
         # Files liste and scrollbar
         self.ui_files = Listbox(self.ui_midframe,
-                                selectmode=EXTENDED,
-                                font=font
-                                )
+            selectmode=EXTENDED, font=font)
         self.ui_files.pack(side=LEFT, fill=BOTH, expand=1)
         self.ui_files.bind("<Return>", self.evtPlay)
         self.ui_filesscroll = Scrollbar(self.ui_midframe,
-                                        command=self.ui_files.yview
-                                        )
+            command=self.ui_files.yview)
         self.ui_files.configure(yscrollcommand=self.ui_filesscroll.set)
         self.ui_filesscroll.pack(side=RIGHT, fill=Y)
+
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
         # Button Play
-        self.ui_butplay = Button(self.ui_botframe,
-                                 text="Play",
-                                 command=self.playSelection,
-                                 font=font
-                                 )
+        self.ui_butplay = Button(self.ui_botframe, text="Play",
+            command=self.playSelection, font=font)
         self.ui_butplay.grid(row=1, column=0, padx=2, pady=2)
         # Button Refresh
-        self.ui_butscan = Button(self.ui_botframe,
-                                 text="Scan",
-                                 command=self.askToRefreshDataBase,
-                                 font=font
-                                 )
+        self.ui_butscan = Button(self.ui_botframe, text="Scan",
+            command=self.askToRefreshDataBase, font=font)
         self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
         # Button Config
-        self.ui_butconf = Button(self.ui_botframe,
-                                 text="Config",
-                                 command=self.displayConfig,
-                                 font=font
-                                 )
+        self.ui_butconf = Button(self.ui_botframe, text="Config",
+            command=self.displayConfig, font=font)
         self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
         # Button Help
-        self.ui_buthelp = Button(self.ui_botframe,
-                                 text="Help",
-                                 command=self.displayHelp,
-                                 font=font
-                                 )
+        self.ui_buthelp = Button(self.ui_botframe, text="Help",
+            command=self.displayHelp, font=font)
         self.ui_buthelp.grid(row=1, column=3, padx=2, pady=2)
         # Button Quit
-        self.ui_butquit = Button(self.ui_botframe,
-                                 text="Quit",
-                                 command=self.stop,
-                                 font=font
-                                 )
+        self.ui_butquit = Button(self.ui_botframe, text="Quit",
+            command=self.stop, font=font)
         self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
 
         # General bindings
