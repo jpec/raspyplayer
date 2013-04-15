@@ -577,7 +577,7 @@ class Player(object):
         self.cfg = Config()
         while not self.cfg.readConf() or not self.cfg.checkConf():
             self.displayConfig()
-        if self.cfg.readConf():
+        if self.cfg.readConf() and self.cfg.checkConf():
             # Database
             self.db = Db(self.cfg)
             if self.db.openDb():
@@ -714,6 +714,7 @@ class Player(object):
 
         if isdir(self.cfg.PATH):
             scanFiles(self.db, self.cfg, self.cfg.PATH)
+            self.db.commitDb()
             self.refreshFilesList()
             return(True)
 
