@@ -690,7 +690,7 @@ class Player(object):
         """Display the player"""
 
         self.createGui()
-        self.refreshDataBase()
+        self.askToRefreshDataBase()
         self.root.mainloop()
 
     #---------------------------------------------------------------------#
@@ -702,6 +702,8 @@ class Player(object):
         msg = "Do you want to refresh the movies database ?"
         if messagebox.askokcancel("RasPyPlayer", msg):
             self.refreshDataBase()
+        else:
+            self.refreshFilesList()
         return(True)
 
     #---------------------------------------------------------------------#
