@@ -50,6 +50,7 @@ from tkinter import Entry
 from tkinter import Button
 from tkinter import Listbox
 from tkinter import Scrollbar
+from tkinter import StringVar
 from tkinter import EXTENDED
 from tkinter import BOTH
 from tkinter import W
@@ -57,6 +58,8 @@ from tkinter import Y
 from tkinter import LEFT
 from tkinter import RIGHT
 from tkinter import END
+from tkinter import NORMAL
+from tkinter import DISABLED
 from tkinter import messagebox
 from tkinter.font import Font
 
@@ -160,10 +163,7 @@ class Config(object):
 
         self.CONF = "/etc/raspyplayer.conf"
         # Values loaded from CONF file
-        self.PATH = None
-        self.EXC = []
-        self.EXT = []
-        self.DB = None
+        self.clearConf()
         # Values hard coded
         self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'
         self.OMXCMD1 = 'xterm -e omxplayer \"{0}\"'
@@ -185,6 +185,16 @@ class Config(object):
         self.EXC = []
         self.EXT = []
         self.DB = None
+        self.URL1 = None
+        self.URL2 = None
+        self.URL3 = None
+        self.URL4 = None
+        self.URL5 = None
+        self.URL1L = 'URL1'
+        self.URL2L = 'URL2'
+        self.URL3L = 'URL3'
+        self.URL4L = 'URL4'
+        self.URL5L = 'URL5'
 
     #---------------------------------------------------------------------#
 
@@ -211,6 +221,46 @@ class Config(object):
                         print(l)
                 elif len(l) >= 5 and l[0:5] == "PATH=":
                     self.PATH = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "URL1=":
+                    self.URL1 = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "URL2=":
+                    self.URL2 = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "URL3=":
+                    self.URL3 = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "URL4=":
+                    self.URL4 = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 5 and l[0:5] == "URL5=":
+                    self.URL5 = l[5:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 6 and l[0:6] == "URL1L=":
+                    self.URL1L = l[6:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 6 and l[0:6] == "URL2L=":
+                    self.URL2L = l[6:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 6 and l[0:6] == "URL3L=":
+                    self.URL3L = l[6:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 6 and l[0:6] == "URL4L=":
+                    self.URL4L = l[6:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 6 and l[0:6] == "URL5L=":
+                    self.URL5L = l[6:len(l)]
                     if DEBUG:
                         print(l)
             f.close()
@@ -322,6 +372,16 @@ class Config(object):
         self.ui_ext.insert(0, lst2str(self.EXT))
         if self.DB:
             self.ui_db.insert(0, self.DB)
+        self.ui_url1.insert(0, self.URL1)
+        self.ui_url2.insert(0, self.URL2)
+        self.ui_url3.insert(0, self.URL3)
+        self.ui_url4.insert(0, self.URL4)
+        self.ui_url5.insert(0, self.URL5)
+        self.ui_url1l.insert(0, self.URL1L)
+        self.ui_url2l.insert(0, self.URL2L)
+        self.ui_url3l.insert(0, self.URL3L)
+        self.ui_url4l.insert(0, self.URL4L)
+        self.ui_url5l.insert(0, self.URL5L)
 
     #---------------------------------------------------------------------#
 
@@ -333,6 +393,16 @@ class Config(object):
         self.EXC = str2lst(self.ui_exc.get())
         self.EXT = str2lst(self.ui_ext.get())
         self.DB = self.ui_db.get()
+        self.URL1 = self.ui_url1.get()
+        self.URL2 = self.ui_url2.get()
+        self.URL3 = self.ui_url3.get()
+        self.URL4 = self.ui_url4.get()
+        self.URL5 = self.ui_url5.get()
+        self.URL1L = self.ui_url1l.get()
+        self.URL2L = self.ui_url2l.get()
+        self.URL3L = self.ui_url3l.get()
+        self.URL4L = self.ui_url4l.get()
+        self.URL5L = self.ui_url5l.get()
 
     #---------------------------------------------------------------------#
 
@@ -352,6 +422,26 @@ class Config(object):
             line = "EXT=" + i
             f.write(line+"\n")
         line = "PATH=" + self.PATH
+        f.write(line+"\n")
+        line = "URL1=" + self.URL1
+        f.write(line+"\n")
+        line = "URL2=" + self.URL2
+        f.write(line+"\n")
+        line = "URL3=" + self.URL3
+        f.write(line+"\n")
+        line = "URL4=" + self.URL4
+        f.write(line+"\n")
+        line = "URL5=" + self.URL5
+        f.write(line+"\n")
+        line = "URL1L=" + self.URL1L
+        f.write(line+"\n")
+        line = "URL2L=" + self.URL2L
+        f.write(line+"\n")
+        line = "URL3L=" + self.URL3L
+        f.write(line+"\n")
+        line = "URL4L=" + self.URL4L
+        f.write(line+"\n")
+        line = "URL5L=" + self.URL5L
         f.write(line+"\n")
         f.close()
         if self.checkConf():
@@ -395,6 +485,66 @@ class Config(object):
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_db = Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
+        # URL1L
+        self.ui_url1llbl = Label(self.ui_midframe, text="Url 1 name",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url1llbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_url1l = Entry(self.ui_midframe, font=font)
+        self.ui_url1l.grid(row=5, column=1, padx=2, pady=2)
+        # URL1
+        self.ui_url1lbl = Label(self.ui_midframe, text="Url 1",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url1lbl.grid(row=6, column=0, padx=2, pady=2)
+        self.ui_url1 = Entry(self.ui_midframe, font=font)
+        self.ui_url1.grid(row=6, column=1, padx=2, pady=2)
+        # URL2L
+        self.ui_url2llbl = Label(self.ui_midframe, text="Url 2 name",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url2llbl.grid(row=7, column=0, padx=2, pady=2)
+        self.ui_url2l = Entry(self.ui_midframe, font=font)
+        self.ui_url2l.grid(row=7, column=1, padx=2, pady=2)
+        # URL2
+        self.ui_url2lbl = Label(self.ui_midframe, text="Url 2",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url2lbl.grid(row=8, column=0, padx=2, pady=2)
+        self.ui_url2 = Entry(self.ui_midframe, font=font)
+        self.ui_url2.grid(row=8, column=1, padx=2, pady=2)
+        # URL3L
+        self.ui_url3llbl = Label(self.ui_midframe, text="Url 3 name",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url3llbl.grid(row=9, column=0, padx=2, pady=2)
+        self.ui_url3l = Entry(self.ui_midframe, font=font)
+        self.ui_url3l.grid(row=9, column=1, padx=2, pady=2)
+        # URL3
+        self.ui_url3lbl = Label(self.ui_midframe, text="Url 3",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url3lbl.grid(row=10, column=0, padx=2, pady=2)
+        self.ui_url3 = Entry(self.ui_midframe, font=font)
+        self.ui_url3.grid(row=10, column=1, padx=2, pady=2)
+        # URL4L
+        self.ui_url4llbl = Label(self.ui_midframe, text="Url 4 name",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url4llbl.grid(row=11, column=0, padx=2, pady=2)
+        self.ui_url4l = Entry(self.ui_midframe, font=font)
+        self.ui_url4l.grid(row=11, column=1, padx=2, pady=2)
+        # URL4
+        self.ui_url4lbl = Label(self.ui_midframe, text="Url 4",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url4lbl.grid(row=12, column=0, padx=2, pady=2)
+        self.ui_url4 = Entry(self.ui_midframe, font=font)
+        self.ui_url4.grid(row=12, column=1, padx=2, pady=2)
+        # URL5L
+        self.ui_url5llbl = Label(self.ui_midframe, text="Url 5 name",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url5llbl.grid(row=13, column=0, padx=2, pady=2)
+        self.ui_url5l = Entry(self.ui_midframe, font=font)
+        self.ui_url5l.grid(row=13, column=1, padx=2, pady=2)
+        # URL5
+        self.ui_url5lbl = Label(self.ui_midframe, text="Url 5",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_url5lbl.grid(row=14, column=0, padx=2, pady=2)
+        self.ui_url5 = Entry(self.ui_midframe, font=font)
+        self.ui_url5.grid(row=14, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
@@ -562,7 +712,12 @@ class Player(object):
 
         self.cfg = None
         self.db = None
-        self.root = None
+        self.root = Tk()
+        self.URL1L = StringVar(master=self.root)
+        self.URL2L = StringVar(master=self.root)
+        self.URL3L = StringVar(master=self.root)
+        self.URL4L = StringVar(master=self.root)
+        self.URL5L = StringVar(master=self.root)
         self.files = {}
         self.start()
 
@@ -633,15 +788,18 @@ class Player(object):
 
     #---------------------------------------------------------------------#
 
-    def play(self, file):
+    def play(self, url, file):
 
         """Play a movie"""
 
         print("Playing {}".format(file))
         if self.cfg.useOmx():
-            sub = file[0:-3] + "srt"
-            if isfile(sub):
-                cmd = self.cfg.OMXCMD2.format(sub, file)
+            if not url:
+                sub = file[0:-3] + "srt"
+                if isfile(sub):
+                    cmd = self.cfg.OMXCMD2.format(sub, file)
+                else:
+                    cmd = self.cfg.OMXCMD1.format(file)
             else:
                 cmd = self.cfg.OMXCMD1.format(file)
         else:
@@ -667,6 +825,8 @@ class Player(object):
         """Display Config Window"""
 
         self.cfg.display(self.root)
+        self.toggleUrl()
+        self.askToRefreshDataBase()
         return(True)
 
     #---------------------------------------------------------------------#
@@ -679,7 +839,18 @@ class Player(object):
         ps = playScreen()
         for i in sel:
             f = self.ui_files.get(i)
-            self.play(self.files[f])
+            self.play(False, self.files[f])
+        ps.destroy()
+        return(True)
+
+    #---------------------------------------------------------------------#
+
+    def playUrl(self, url):
+
+        """Play selected url"""
+
+        ps = playScreen()
+        self.play(True, url)
         ps.destroy()
         return(True)
 
@@ -690,6 +861,7 @@ class Player(object):
         """Display the player"""
 
         self.createGui()
+        self.toggleUrl()
         self.askToRefreshDataBase()
         self.root.mainloop()
 
@@ -750,6 +922,87 @@ class Player(object):
 
     #---------------------------------------------------------------------#
 
+    def toggleUrl(self):
+
+        """Enable / disable url buttons"""
+
+        if self.cfg.URL1:
+            state = NORMAL
+            self.URL1L.set(self.cfg.URL1L)
+        else:
+            state = DISABLED
+            self.URL1L.set("N/A")
+        self.ui_buturl1.configure(state=state)
+        self.ui_buturl1.update_idletasks()
+        if self.cfg.URL2:
+            state = NORMAL
+            self.URL2L.set(self.cfg.URL2L)
+        else:
+            state = DISABLED
+            self.URL2L.set("N/A")
+        self.ui_buturl2.configure(state=state)
+        self.ui_buturl2.update_idletasks()
+        if self.cfg.URL3:
+            state = NORMAL
+            self.URL3L.set(self.cfg.URL3L)
+        else:
+            state = DISABLED
+            self.URL3L.set("N/A")
+        self.ui_buturl3.configure(state=state)
+        self.ui_buturl3.update_idletasks()
+        if self.cfg.URL4:
+            state = NORMAL
+            self.URL4L.set(self.cfg.URL4L)
+        else:
+            state = DISABLED
+            self.URL4L.set("N/A")
+        self.ui_buturl4.configure(state=state)
+        self.ui_buturl4.update_idletasks()
+        if self.cfg.URL5:
+            state = NORMAL
+            self.URL5L.set(self.cfg.URL5L)
+        else:
+            state = DISABLED
+            self.URL5L.set("N/A")
+        self.ui_buturl5.configure(state=state)
+        self.ui_buturl5.update_idletasks()
+        # Refresh
+        self.root.update_idletasks()
+
+    #---------------------------------------------------------------------#
+
+    def playUrl1(self):
+
+        """Play URL 1"""
+
+        self.playUrl(self.cfg.URL1)
+
+    def playUrl2(self):
+
+        """Play URL 2"""
+
+        self.playUrl(self.cfg.URL2)
+
+    def playUrl3(self):
+
+        """Play URL 3"""
+
+        self.playUrl(self.cfg.URL3)
+
+    def playUrl4(self):
+
+        """Play URL 4"""
+
+        self.playUrl(self.cfg.URL4)
+
+    def playUrl5(self):
+
+        """Play URL 5"""
+
+        self.playUrl(self.cfg.URL5)
+
+    #---------------------------------------------------------------------#
+
     def evtPlay(self, evt):
         self.playSelection()
 
@@ -775,7 +1028,6 @@ class Player(object):
         """Create the GUI for Player"""
 
         print("*** Creating GUI ***")
-        self.root = Tk()
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = Font(self.root, size=20, family='Sans')
         self.root.attributes('-fullscreen', True)
@@ -796,9 +1048,13 @@ class Player(object):
             command=self.refreshFilesList, font=font)
         self.ui_srcexec.grid(row=1, column=2, padx=2, pady=2)
 
+        # Frame (contain Middle and Url frames)
+        self.ui_frame = Frame(self.root, borderwidth=2)
+        self.ui_frame.pack(fill=BOTH, expand=1)
+
         # Middle Frame (files group)
-        self.ui_midframe = Frame(self.root, borderwidth=2)
-        self.ui_midframe.pack(fill=BOTH, expand=1)
+        self.ui_midframe = Frame(self.ui_frame, borderwidth=2)
+        self.ui_midframe.pack({"side": "left"}, fill=BOTH, expand=1)
         # Files liste and scrollbar
         self.ui_files = Listbox(self.ui_midframe,
             selectmode=EXTENDED, font=font)
@@ -808,6 +1064,30 @@ class Player(object):
             command=self.ui_files.yview)
         self.ui_files.configure(yscrollcommand=self.ui_filesscroll.set)
         self.ui_filesscroll.pack(side=RIGHT, fill=Y)
+
+        # Url Frame (url group)
+        self.ui_urlframe = Frame(self.ui_frame, borderwidth=2)
+        self.ui_urlframe.pack({"side": "right"})
+        # Button Url 1
+        self.ui_buturl1 = Button(self.ui_urlframe, textvariable=self.URL1L,
+            command=self.playUrl1, font=font)
+        self.ui_buturl1.grid(row=1, column=0, padx=2, pady=2)
+        # Button Url 2
+        self.ui_buturl2 = Button(self.ui_urlframe, textvariable=self.URL2L,
+            command=self.playUrl2, font=font)
+        self.ui_buturl2.grid(row=2, column=0, padx=2, pady=2)
+        # Button Url 3
+        self.ui_buturl3 = Button(self.ui_urlframe, textvariable=self.URL3L,
+            command=self.playUrl3, font=font)
+        self.ui_buturl3.grid(row=3, column=0, padx=2, pady=2)
+        # Button Url 4
+        self.ui_buturl4 = Button(self.ui_urlframe, textvariable=self.URL4L,
+            command=self.playUrl4, font=font)
+        self.ui_buturl4.grid(row=4, column=0, padx=2, pady=2)
+        # Button Url 5
+        self.ui_buturl5 = Button(self.ui_urlframe, textvariable=self.URL5L,
+            command=self.playUrl5, font=font)
+        self.ui_buturl5.grid(row=5, column=0, padx=2, pady=2)
 
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
