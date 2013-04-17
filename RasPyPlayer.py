@@ -5,11 +5,11 @@
 #-------------------------------------------------------------------------#
 VERSION = "2.2.0-dev"
 #-------------------------------------------------------------------------#
-# Author :  Julien Pecqueur (JPEC)
-# Email :   jpec@julienpecqueur.net
-# Site :    http://raspyplayer.org
+# Author : Julien Pecqueur (JPEC)
+# Email : jpec@julienpecqueur.net
+# Site : http://raspyplayer.org
 # Sources : https://github.com/jpec/RasPyPlayer
-# Bugs :    https://github.com/jpec/RasPyPlayer/issues
+# Bugs : https://github.com/jpec/RasPyPlayer/issues
 #
 # License :
 # This program is free software: you can redistribute it and/or modify
@@ -356,6 +356,7 @@ class Config(object):
         """Display the setting window"""
 
         if self.createGui():
+            self.player = root
             self.fill()
             self.root.mainloop()
         return(True)
@@ -372,11 +373,16 @@ class Config(object):
         self.ui_ext.insert(0, lst2str(self.EXT))
         if self.DB:
             self.ui_db.insert(0, self.DB)
-        self.ui_url1.insert(0, self.URL1)
-        self.ui_url2.insert(0, self.URL2)
-        self.ui_url3.insert(0, self.URL3)
-        self.ui_url4.insert(0, self.URL4)
-        self.ui_url5.insert(0, self.URL5)
+        if self.URL1:
+            self.ui_url1.insert(0, self.URL1)
+        if self.URL2:
+            self.ui_url2.insert(0, self.URL2)
+        if self.URL3:
+            self.ui_url3.insert(0, self.URL3)
+        if self.URL4:
+            self.ui_url4.insert(0, self.URL4)
+        if self.URL5:
+            self.ui_url5.insert(0, self.URL5)
         self.ui_url1l.insert(0, self.URL1L)
         self.ui_url2l.insert(0, self.URL2L)
         self.ui_url3l.insert(0, self.URL3L)
@@ -445,7 +451,56 @@ class Config(object):
         f.write(line+"\n")
         f.close()
         if self.checkConf():
+            self.toggleUrl(self.player)
             self.root.destroy()
+    #---------------------------------------------------------------------#
+
+    def toggleUrl(self, player):
+
+        """Enable / disable url buttons"""
+
+        if self.URL1:
+            s = NORMAL
+            player.URL1L.set(self.URL1L)
+        else:
+            s = DISABLED
+            player.URL1L.set("N/A")
+        player.ui_buturl1.configure(state=s)
+        player.ui_buturl1.update_idletasks()
+        if self.URL2:
+            s = NORMAL
+            player.URL2L.set(self.URL2L)
+        else:
+            s = DISABLED
+            player.URL2L.set("N/A")
+        player.ui_buturl2.configure(state=s)
+        player.ui_buturl2.update_idletasks()
+        if self.URL3:
+            s = NORMAL
+            player.URL3L.set(self.URL3L)
+        else:
+            s = DISABLED
+            player.URL3L.set("N/A")
+        player.ui_buturl3.configure(state=s)
+        player.ui_buturl3.update_idletasks()
+        if self.URL4:
+            s = NORMAL
+            player.URL4L.set(self.URL4L)
+        else:
+            s = DISABLED
+            player.URL4L.set("N/A")
+        player.ui_buturl4.configure(state=s)
+        player.ui_buturl4.update_idletasks()
+        if self.URL5:
+            s = NORMAL
+            player.URL5L.set(self.URL5L)
+        else:
+            s = DISABLED
+            player.URL5L.set("N/A")
+        player.ui_buturl5.configure(state=s)
+        player.ui_buturl5.update_idletasks()
+        # Refresh
+        player.root.update_idletasks()
 
     #---------------------------------------------------------------------#
 
@@ -824,8 +879,7 @@ class Player(object):
 
         """Display Config Window"""
 
-        self.cfg.display(self.root)
-        self.toggleUrl()
+        self.cfg.display(self)
         self.askToRefreshDataBase()
         return(True)
 
@@ -861,7 +915,7 @@ class Player(object):
         """Display the player"""
 
         self.createGui()
-        self.toggleUrl()
+        self.cfg.toggleUrl(self)
         self.askToRefreshDataBase()
         self.root.mainloop()
 
@@ -919,55 +973,6 @@ class Player(object):
         for file in liste:
             self.ui_files.insert(END, file)
         return(True)
-
-    #---------------------------------------------------------------------#
-
-    def toggleUrl(self):
-
-        """Enable / disable url buttons"""
-
-        if self.cfg.URL1:
-            state = NORMAL
-            self.URL1L.set(self.cfg.URL1L)
-        else:
-            state = DISABLED
-            self.URL1L.set("N/A")
-        self.ui_buturl1.configure(state=state)
-        self.ui_buturl1.update_idletasks()
-        if self.cfg.URL2:
-            state = NORMAL
-            self.URL2L.set(self.cfg.URL2L)
-        else:
-            state = DISABLED
-            self.URL2L.set("N/A")
-        self.ui_buturl2.configure(state=state)
-        self.ui_buturl2.update_idletasks()
-        if self.cfg.URL3:
-            state = NORMAL
-            self.URL3L.set(self.cfg.URL3L)
-        else:
-            state = DISABLED
-            self.URL3L.set("N/A")
-        self.ui_buturl3.configure(state=state)
-        self.ui_buturl3.update_idletasks()
-        if self.cfg.URL4:
-            state = NORMAL
-            self.URL4L.set(self.cfg.URL4L)
-        else:
-            state = DISABLED
-            self.URL4L.set("N/A")
-        self.ui_buturl4.configure(state=state)
-        self.ui_buturl4.update_idletasks()
-        if self.cfg.URL5:
-            state = NORMAL
-            self.URL5L.set(self.cfg.URL5L)
-        else:
-            state = DISABLED
-            self.URL5L.set("N/A")
-        self.ui_buturl5.configure(state=state)
-        self.ui_buturl5.update_idletasks()
-        # Refresh
-        self.root.update_idletasks()
 
     #---------------------------------------------------------------------#
 
@@ -1030,7 +1035,7 @@ class Player(object):
         print("*** Creating GUI ***")
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = Font(self.root, size=20, family='Sans')
-        self.root.attributes('-fullscreen', True)
+        #self.root.attributes('-fullscreen', True)
 
         # Top Frame (search group)
         self.ui_topframe = Frame(self.root, borderwidth=2)
@@ -1102,7 +1107,7 @@ class Player(object):
         self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
         # Button Config
         self.ui_butconf = Button(self.ui_botframe, text="Config",
-            command=self.displayConfig, font=font)
+            command=lambda : self.cfg.display(self), font=font)
         self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
         # Button Help
         self.ui_buthelp = Button(self.ui_botframe, text="Help",
