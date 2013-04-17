@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.2.0-dev"
+VERSION = "2.2.0"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
