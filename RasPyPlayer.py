@@ -1035,7 +1035,7 @@ class Player(object):
         print("*** Creating GUI ***")
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = Font(self.root, size=20, family='Sans')
-        #self.root.attributes('-fullscreen', True)
+        self.root.attributes('-fullscreen', True)
 
         # Top Frame (search group)
         self.ui_topframe = Frame(self.root, borderwidth=2)
