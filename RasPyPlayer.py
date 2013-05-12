@@ -627,7 +627,7 @@ class Db(object):
         """Initialisation of the DB object"""
 
         self.cfg = cfg
-        self.db = cfg.DB
+        self.db = "{0}/{1}".format(expanduser('~'), cfg.DB)
         self.con = None
         self.cur = None
         self.new = False
