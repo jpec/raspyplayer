@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.3-dev"
+VERSION = "2.3"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -167,8 +167,8 @@ class Config(object):
         self.clearConf()
         # Values hard coded
         self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'
-        self.OMXCMD1 = 'xterm -e omxplayer \"{0}\"'
-        self.OMXCMD2 = 'xterm -e omxplayer --subtitles \"{0}\" \"{1}\"'
+        self.OMXCMD1 = 'xterm -e omxplayer -o {0} \"{1}\"'
+        self.OMXCMD2 = 'xterm -e omxplayer -o {0} --subtitles \"{1}\" \"{2}\"'
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
@@ -196,6 +196,7 @@ class Config(object):
         self.URL3L = 'URL3'
         self.URL4L = 'URL4'
         self.URL5L = 'URL5'
+        self.OUT = 'local'
 
     #---------------------------------------------------------------------#
 
@@ -262,6 +263,10 @@ class Config(object):
                         print(l)
                 elif len(l) >= 6 and l[0:6] == "URL5L=":
                     self.URL5L = l[6:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 4 and l[0:4] == "OUT=":
+                    self.OUT = l[4:len(l)]
                     if DEBUG:
                         print(l)
             f.close()
@@ -389,6 +394,7 @@ class Config(object):
         self.ui_url3l.insert(0, self.URL3L)
         self.ui_url4l.insert(0, self.URL4L)
         self.ui_url5l.insert(0, self.URL5L)
+        self.ui_out.insert(0, self.OUT)
 
     #---------------------------------------------------------------------#
 
@@ -410,6 +416,7 @@ class Config(object):
         self.URL3L = self.ui_url3l.get()
         self.URL4L = self.ui_url4l.get()
         self.URL5L = self.ui_url5l.get()
+        self.OUT = self.ui_out.get()
 
     #---------------------------------------------------------------------#
 
@@ -449,6 +456,8 @@ class Config(object):
         line = "URL4L=" + self.URL4L
         f.write(line+"\n")
         line = "URL5L=" + self.URL5L
+        f.write(line+"\n")
+        line = "OUT=" + self.OUT
         f.write(line+"\n")
         f.close()
         if self.checkConf():
@@ -541,66 +550,72 @@ class Config(object):
         self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_db = Entry(self.ui_midframe, font=font)
         self.ui_db.grid(row=4, column=1, padx=2, pady=2)
+        # OUT
+        self.ui_outlbl = Label(self.ui_midframe, text="Audio output (local/hdmi)",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_outlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_out = Entry(self.ui_midframe, font=font)
+        self.ui_out.grid(row=5, column=1, padx=2, pady=2)
         # URL1L
         self.ui_url1llbl = Label(self.ui_midframe, text="Url 1 name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url1llbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_url1llbl.grid(row=6, column=0, padx=2, pady=2)
         self.ui_url1l = Entry(self.ui_midframe, font=font)
-        self.ui_url1l.grid(row=5, column=1, padx=2, pady=2)
+        self.ui_url1l.grid(row=6, column=1, padx=2, pady=2)
         # URL1
         self.ui_url1lbl = Label(self.ui_midframe, text="Url 1",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url1lbl.grid(row=6, column=0, padx=2, pady=2)
+        self.ui_url1lbl.grid(row=7, column=0, padx=2, pady=2)
         self.ui_url1 = Entry(self.ui_midframe, font=font)
-        self.ui_url1.grid(row=6, column=1, padx=2, pady=2)
+        self.ui_url1.grid(row=7, column=1, padx=2, pady=2)
         # URL2L
         self.ui_url2llbl = Label(self.ui_midframe, text="Url 2 name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url2llbl.grid(row=7, column=0, padx=2, pady=2)
+        self.ui_url2llbl.grid(row=8, column=0, padx=2, pady=2)
         self.ui_url2l = Entry(self.ui_midframe, font=font)
-        self.ui_url2l.grid(row=7, column=1, padx=2, pady=2)
+        self.ui_url2l.grid(row=8, column=1, padx=2, pady=2)
         # URL2
         self.ui_url2lbl = Label(self.ui_midframe, text="Url 2",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url2lbl.grid(row=8, column=0, padx=2, pady=2)
+        self.ui_url2lbl.grid(row=9, column=0, padx=2, pady=2)
         self.ui_url2 = Entry(self.ui_midframe, font=font)
-        self.ui_url2.grid(row=8, column=1, padx=2, pady=2)
+        self.ui_url2.grid(row=9, column=1, padx=2, pady=2)
         # URL3L
         self.ui_url3llbl = Label(self.ui_midframe, text="Url 3 name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url3llbl.grid(row=9, column=0, padx=2, pady=2)
+        self.ui_url3llbl.grid(row=10, column=0, padx=2, pady=2)
         self.ui_url3l = Entry(self.ui_midframe, font=font)
-        self.ui_url3l.grid(row=9, column=1, padx=2, pady=2)
+        self.ui_url3l.grid(row=10, column=1, padx=2, pady=2)
         # URL3
         self.ui_url3lbl = Label(self.ui_midframe, text="Url 3",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url3lbl.grid(row=10, column=0, padx=2, pady=2)
+        self.ui_url3lbl.grid(row=11, column=0, padx=2, pady=2)
         self.ui_url3 = Entry(self.ui_midframe, font=font)
-        self.ui_url3.grid(row=10, column=1, padx=2, pady=2)
+        self.ui_url3.grid(row=11, column=1, padx=2, pady=2)
         # URL4L
         self.ui_url4llbl = Label(self.ui_midframe, text="Url 4 name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url4llbl.grid(row=11, column=0, padx=2, pady=2)
+        self.ui_url4llbl.grid(row=12, column=0, padx=2, pady=2)
         self.ui_url4l = Entry(self.ui_midframe, font=font)
-        self.ui_url4l.grid(row=11, column=1, padx=2, pady=2)
+        self.ui_url4l.grid(row=12, column=1, padx=2, pady=2)
         # URL4
         self.ui_url4lbl = Label(self.ui_midframe, text="Url 4",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url4lbl.grid(row=12, column=0, padx=2, pady=2)
+        self.ui_url4lbl.grid(row=13, column=0, padx=2, pady=2)
         self.ui_url4 = Entry(self.ui_midframe, font=font)
-        self.ui_url4.grid(row=12, column=1, padx=2, pady=2)
+        self.ui_url4.grid(row=13, column=1, padx=2, pady=2)
         # URL5L
         self.ui_url5llbl = Label(self.ui_midframe, text="Url 5 name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url5llbl.grid(row=13, column=0, padx=2, pady=2)
+        self.ui_url5llbl.grid(row=14, column=0, padx=2, pady=2)
         self.ui_url5l = Entry(self.ui_midframe, font=font)
-        self.ui_url5l.grid(row=13, column=1, padx=2, pady=2)
+        self.ui_url5l.grid(row=14, column=1, padx=2, pady=2)
         # URL5
         self.ui_url5lbl = Label(self.ui_midframe, text="Url 5",
             justify=LEFT, anchor=W, font=font )
-        self.ui_url5lbl.grid(row=14, column=0, padx=2, pady=2)
+        self.ui_url5lbl.grid(row=15, column=0, padx=2, pady=2)
         self.ui_url5 = Entry(self.ui_midframe, font=font)
-        self.ui_url5.grid(row=14, column=1, padx=2, pady=2)
+        self.ui_url5.grid(row=15, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
         self.ui_botframe.pack({"side": "left"})
@@ -853,11 +868,11 @@ class Player(object):
             if not url:
                 sub = file[0:-3] + "srt"
                 if isfile(sub):
-                    cmd = self.cfg.OMXCMD2.format(sub, file)
+                    cmd = self.cfg.OMXCMD2.format(self.cfg.OUT, sub, file)
                 else:
-                    cmd = self.cfg.OMXCMD1.format(file)
+                    cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
             else:
-                cmd = self.cfg.OMXCMD1.format(file)
+                cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
         else:
             cmd = self.cfg.MPLRCMD.format(file)
         if DEBUG:
