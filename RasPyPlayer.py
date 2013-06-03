@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.3"
+VERSION = "2.4"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -835,6 +835,7 @@ class Player(object):
         """Add movies in DB"""
 
         print("*** Adding movies in database")
+        self.db.initDb()
         scanFiles(self.db, self.cfg, self.cfg.PATH)
         self.db.commitDb()
         return(True)
@@ -955,8 +956,7 @@ class Player(object):
         """Refresh the movies database"""
 
         if isdir(self.cfg.PATH):
-            scanFiles(self.db, self.cfg, self.cfg.PATH)
-            self.db.commitDb()
+            self.scanDB()
             self.refreshFilesList()
             return(True)
 
