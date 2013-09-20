@@ -184,15 +184,15 @@ class Config(object):
         """Clear conf settings"""
 
         self.PATH = None
-        self.EXC = []
-        self.EXT = []
-        self.DB = None
-        self.URL1 = None
+        self.EXC = ['Musique', 'Documents']
+        self.EXT = ['.avi', '.mpg', '.mp4', '.wmv', '.mkv']
+        self.DB = '.raspyplayer.sqlite3'
+        self.URL1 = 'rtsp://site.com/flux'
         self.URL2 = None
         self.URL3 = None
         self.URL4 = None
         self.URL5 = None
-        self.URL1L = 'URL1'
+        self.URL1L = 'WEB TV'
         self.URL2L = 'URL2'
         self.URL3L = 'URL3'
         self.URL4L = 'URL4'
