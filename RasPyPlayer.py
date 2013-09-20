@@ -198,7 +198,7 @@ class Config(object):
         self.URL4L = 'URL4'
         self.URL5L = 'URL5'
         self.OUT = 'local'
-        self.OPT = '-t on --align center --no-ghost-box'
+        self.OPT = '-t on --align center'
 
     #---------------------------------------------------------------------#
 
@@ -1089,7 +1089,7 @@ class Player(object):
 
         print("*** Creating GUI ***")
         self.root.title("RasPyPlayer v{}".format(VERSION))
-        font = Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=26, family='Sans')
         self.root.attributes('-fullscreen', True)
 
         # Top Frame (search group)

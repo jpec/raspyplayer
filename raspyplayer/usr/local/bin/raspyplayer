@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.4"
+VERSION = "2.5-dev"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -63,6 +63,7 @@ from tkinter import NORMAL
 from tkinter import DISABLED
 from tkinter import messagebox
 from tkinter.font import Font
+from tkinter.filedialog import askopenfilename
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -167,8 +168,8 @@ class Config(object):
         self.clearConf()
         # Values hard coded
         self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'
-        self.OMXCMD1 = 'xterm -e omxplayer -o {0} \"{1}\"'
-        self.OMXCMD2 = 'xterm -e omxplayer -o {0} --subtitles \"{1}\" \"{2}\"'
+        self.OMXCMD1 = 'xterm -e omxplayer {0} -o {1} \"{2}\"'
+        self.OMXCMD2 = 'xterm -e omxplayer {0} -o {1} --subtitles \"{2}\" \"{3}\"'
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
@@ -183,20 +184,21 @@ class Config(object):
         """Clear conf settings"""
 
         self.PATH = None
-        self.EXC = []
-        self.EXT = []
-        self.DB = None
-        self.URL1 = None
+        self.EXC = ['Musique', 'Documents']
+        self.EXT = ['.avi', '.mpg', '.mp4', '.wmv', '.mkv']
+        self.DB = '.raspyplayer.sqlite3'
+        self.URL1 = 'rtsp://site.com/flux'
         self.URL2 = None
         self.URL3 = None
         self.URL4 = None
         self.URL5 = None
-        self.URL1L = 'URL1'
+        self.URL1L = 'WEB TV'
         self.URL2L = 'URL2'
         self.URL3L = 'URL3'
         self.URL4L = 'URL4'
         self.URL5L = 'URL5'
         self.OUT = 'local'
+        self.OPT = '-t on --align center'
 
     #---------------------------------------------------------------------#
 
@@ -267,6 +269,10 @@ class Config(object):
                         print(l)
                 elif len(l) >= 4 and l[0:4] == "OUT=":
                     self.OUT = l[4:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 4 and l[0:4] == "OPT=":
+                    self.OPT = l[4:len(l)]
                     if DEBUG:
                         print(l)
             f.close()
@@ -395,6 +401,7 @@ class Config(object):
         self.ui_url4l.insert(0, self.URL4L)
         self.ui_url5l.insert(0, self.URL5L)
         self.ui_out.insert(0, self.OUT)
+        self.ui_opt.insert(0, self.OPT)
 
     #---------------------------------------------------------------------#
 
@@ -417,6 +424,7 @@ class Config(object):
         self.URL4L = self.ui_url4l.get()
         self.URL5L = self.ui_url5l.get()
         self.OUT = self.ui_out.get()
+        self.OPT = self.ui_opt.get()
 
     #---------------------------------------------------------------------#
 
@@ -458,6 +466,8 @@ class Config(object):
         line = "URL5L=" + self.URL5L
         f.write(line+"\n")
         line = "OUT=" + self.OUT
+        f.write(line+"\n")
+        line = "OPT=" + self.OPT
         f.write(line+"\n")
         f.close()
         if self.checkConf():
@@ -522,40 +532,46 @@ class Config(object):
         self.root = Tk()
         self.root.title("Configuration")
         self.root.attributes('-topmost', True)
-        font = Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=12, family='Sans')
         # Middle Frame (config group)
         self.ui_midframe = Frame(self.root, borderwidth=2)
         self.ui_midframe.pack(fill=BOTH, expand=1)
         # PATH
         self.ui_pathlbl = Label(self.ui_midframe, text="Movies root folder",
             justify=LEFT, anchor=W, font=font)
-        self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
+        self.ui_pathlbl.grid(row=0, column=0, padx=2, pady=2)
         self.ui_path = Entry(self.ui_midframe, font=font)
-        self.ui_path.grid(row=1, column=1, padx=2, pady=2)
+        self.ui_path.grid(row=0, column=1, padx=2, pady=2)
         # EXC
         self.ui_exclbl = Label(self.ui_midframe, text="Directories to exclude",
             justify=LEFT, anchor=W, font=font)
-        self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
+        self.ui_exclbl.grid(row=1, column=0, padx=2, pady=2)
         self.ui_exc = Entry(self.ui_midframe, font=font)
-        self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
+        self.ui_exc.grid(row=1, column=1, padx=2, pady=2)
         # EXT
         self.ui_extlbl = Label(self.ui_midframe, text="Movies extensions",
             justify=LEFT, anchor=W, font=font )
-        self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
+        self.ui_extlbl.grid(row=2, column=0, padx=2, pady=2)
         self.ui_ext = Entry(self.ui_midframe, font=font)
-        self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
+        self.ui_ext.grid(row=2, column=1, padx=2, pady=2)
         # DB
         self.ui_dblbl = Label(self.ui_midframe, text="Database name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
+        self.ui_dblbl.grid(row=3, column=0, padx=2, pady=2)
         self.ui_db = Entry(self.ui_midframe, font=font)
-        self.ui_db.grid(row=4, column=1, padx=2, pady=2)
+        self.ui_db.grid(row=3, column=1, padx=2, pady=2)
         # OUT
         self.ui_outlbl = Label(self.ui_midframe, text="Audio output (local/hdmi)",
             justify=LEFT, anchor=W, font=font )
-        self.ui_outlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_outlbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_out = Entry(self.ui_midframe, font=font)
-        self.ui_out.grid(row=5, column=1, padx=2, pady=2)
+        self.ui_out.grid(row=4, column=1, padx=2, pady=2)
+        # OPT
+        self.ui_optlbl = Label(self.ui_midframe, text="Omxplayer extra options",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_optlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_opt = Entry(self.ui_midframe, font=font)
+        self.ui_opt.grid(row=5, column=1, padx=2, pady=2)
         # URL1L
         self.ui_url1llbl = Label(self.ui_midframe, text="Url 1 name",
             justify=LEFT, anchor=W, font=font )
@@ -618,7 +634,7 @@ class Config(object):
         self.ui_url5.grid(row=15, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
-        self.ui_botframe.pack({"side": "left"})
+        self.ui_botframe.pack(anchor='s')
         # Button Save
         self.ui_butsave = Button(self.ui_botframe, text="Save",
             command=self.save, font=font)
@@ -627,6 +643,17 @@ class Config(object):
         self.ui_butquit = Button(self.ui_botframe, text="Close",
             command=self.root.destroy, font=font)
         self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
+        # Window position
+        self.root.update_idletasks()
+        w = self.root.winfo_reqwidth()
+        h = self.root.winfo_reqheight()
+        ws = self.root.winfo_screenwidth()
+        hs = self.root.winfo_screenheight()
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.root.minsize(w, h)
+        self.root.maxsize(w, h)
         return(True)
 
     #---------------------------------------------------------------------#
@@ -869,11 +896,11 @@ class Player(object):
             if not url:
                 sub = file[0:-3] + "srt"
                 if isfile(sub):
-                    cmd = self.cfg.OMXCMD2.format(self.cfg.OUT, sub, file)
+                    cmd = self.cfg.OMXCMD2.format(self.cfg.OPT, self.cfg.OUT, sub, file)
                 else:
-                    cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
+                    cmd = self.cfg.OMXCMD1.format(self.cfg.OPT, self.cfg.OUT, file)
             else:
-                cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
+                cmd = self.cfg.OMXCMD1.format(self.cfg.OPT, self.cfg.OUT, file)
         else:
             cmd = self.cfg.MPLRCMD.format(file)
         if DEBUG:
@@ -881,6 +908,18 @@ class Player(object):
         system(cmd)
         return(True)
 
+    #---------------------------------------------------------------------#
+
+    def directPlay(self):
+
+        """Direct play a file"""
+        file = askopenfilename(title="Select a movie")
+        if file:
+            ps = playScreen()
+            self.play(False, file)
+            ps.destroy()
+        return(True)
+        
     #---------------------------------------------------------------------#
 
     def displayHelp(self):
@@ -1050,7 +1089,7 @@ class Player(object):
 
         print("*** Creating GUI ***")
         self.root.title("RasPyPlayer v{}".format(VERSION))
-        font = Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=26, family='Sans')
         self.root.attributes('-fullscreen', True)
 
         # Top Frame (search group)
@@ -1121,18 +1160,22 @@ class Player(object):
         self.ui_butscan = Button(self.ui_botframe, text="Scan",
             command=self.askToRefreshDataBase, font=font)
         self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
+        # Button Direct Play
+        self.ui_butdplay = Button(self.ui_botframe, text="Direct Play",
+            command=self.directPlay, font=font)
+        self.ui_butdplay.grid(row=1, column=2, padx=2, pady=2)
         # Button Config
         self.ui_butconf = Button(self.ui_botframe, text="Config",
             command=lambda : self.cfg.display(self), font=font)
-        self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
+        self.ui_butconf.grid(row=1, column=3, padx=2, pady=2)
         # Button Help
         self.ui_buthelp = Button(self.ui_botframe, text="Help",
             command=self.displayHelp, font=font)
-        self.ui_buthelp.grid(row=1, column=3, padx=2, pady=2)
+        self.ui_buthelp.grid(row=1, column=4, padx=2, pady=2)
         # Button Quit
         self.ui_butquit = Button(self.ui_botframe, text="Quit",
             command=self.stop, font=font)
-        self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
+        self.ui_butquit.grid(row=1, column=5, padx=2, pady=2)
 
         # General bindings
         self.root.bind("<F1>", self.evtHelp)
