@@ -531,7 +531,7 @@ class Config(object):
         self.root = Tk()
         self.root.title("Configuration")
         self.root.attributes('-topmost', True)
-        font = Font(self.root, size=20, family='Sans')
+        font = Font(self.root, size=12, family='Sans')
         # Middle Frame (config group)
         self.ui_midframe = Frame(self.root, borderwidth=2)
         self.ui_midframe.pack(fill=BOTH, expand=1)
@@ -633,7 +633,7 @@ class Config(object):
         self.ui_url5.grid(row=15, column=1, padx=2, pady=2)
         # Bottom Frame (buttons group)
         self.ui_botframe = Frame(self.root, borderwidth=2)
-        self.ui_botframe.pack({"side": "left"})
+        self.ui_botframe.pack(anchor='s')
         # Button Save
         self.ui_butsave = Button(self.ui_botframe, text="Save",
             command=self.save, font=font)
@@ -642,6 +642,17 @@ class Config(object):
         self.ui_butquit = Button(self.ui_botframe, text="Close",
             command=self.root.destroy, font=font)
         self.ui_butquit.grid(row=1, column=1, padx=2, pady=2)
+        # Window position
+        self.root.update_idletasks()
+        w = self.root.winfo_reqwidth()
+        h = self.root.winfo_reqheight()
+        ws = self.root.winfo_screenwidth()
+        hs = self.root.winfo_screenheight()
+        x = (ws/2) - (w/2)
+        y = (hs/2) - (h/2)
+        self.root.geometry('%dx%d+%d+%d' % (w, h, x, y))
+        self.root.minsize(w, h)
+        self.root.maxsize(w, h)
         return(True)
 
     #---------------------------------------------------------------------#
