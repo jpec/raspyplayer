@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.4"
+VERSION = "2.5-dev"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -167,8 +167,8 @@ class Config(object):
         self.clearConf()
         # Values hard coded
         self.MPLRCMD = 'xterm -e mplayer -fs \"{0}\"'
-        self.OMXCMD1 = 'xterm -e omxplayer -o {0} \"{1}\"'
-        self.OMXCMD2 = 'xterm -e omxplayer -o {0} --subtitles \"{1}\" \"{2}\"'
+        self.OMXCMD1 = 'xterm -e omxplayer {0} -o {1} \"{2}\"'
+        self.OMXCMD2 = 'xterm -e omxplayer {0} -o {1} --subtitles \"{2}\" \"{3}\"'
         # DB*** - SQL requests
         self.DBADD = self.initDbAdd()
         self.DBALL = self.initDbAll()
@@ -197,6 +197,7 @@ class Config(object):
         self.URL4L = 'URL4'
         self.URL5L = 'URL5'
         self.OUT = 'local'
+        self.OPT = '-t on --align center --no-ghost-box'
 
     #---------------------------------------------------------------------#
 
@@ -267,6 +268,10 @@ class Config(object):
                         print(l)
                 elif len(l) >= 4 and l[0:4] == "OUT=":
                     self.OUT = l[4:len(l)]
+                    if DEBUG:
+                        print(l)
+                elif len(l) >= 4 and l[0:4] == "OPT=":
+                    self.OPT = l[4:len(l)]
                     if DEBUG:
                         print(l)
             f.close()
@@ -395,6 +400,7 @@ class Config(object):
         self.ui_url4l.insert(0, self.URL4L)
         self.ui_url5l.insert(0, self.URL5L)
         self.ui_out.insert(0, self.OUT)
+        self.ui_opt.insert(0, self.OPT)
 
     #---------------------------------------------------------------------#
 
@@ -417,6 +423,7 @@ class Config(object):
         self.URL4L = self.ui_url4l.get()
         self.URL5L = self.ui_url5l.get()
         self.OUT = self.ui_out.get()
+        self.OPT = self.ui_opt.get()
 
     #---------------------------------------------------------------------#
 
@@ -458,6 +465,8 @@ class Config(object):
         line = "URL5L=" + self.URL5L
         f.write(line+"\n")
         line = "OUT=" + self.OUT
+        f.write(line+"\n")
+        line = "OPT=" + self.OPT
         f.write(line+"\n")
         f.close()
         if self.checkConf():
@@ -529,33 +538,39 @@ class Config(object):
         # PATH
         self.ui_pathlbl = Label(self.ui_midframe, text="Movies root folder",
             justify=LEFT, anchor=W, font=font)
-        self.ui_pathlbl.grid(row=1, column=0, padx=2, pady=2)
+        self.ui_pathlbl.grid(row=0, column=0, padx=2, pady=2)
         self.ui_path = Entry(self.ui_midframe, font=font)
-        self.ui_path.grid(row=1, column=1, padx=2, pady=2)
+        self.ui_path.grid(row=0, column=1, padx=2, pady=2)
         # EXC
         self.ui_exclbl = Label(self.ui_midframe, text="Directories to exclude",
             justify=LEFT, anchor=W, font=font)
-        self.ui_exclbl.grid(row=2, column=0, padx=2, pady=2)
+        self.ui_exclbl.grid(row=1, column=0, padx=2, pady=2)
         self.ui_exc = Entry(self.ui_midframe, font=font)
-        self.ui_exc.grid(row=2, column=1, padx=2, pady=2)
+        self.ui_exc.grid(row=1, column=1, padx=2, pady=2)
         # EXT
         self.ui_extlbl = Label(self.ui_midframe, text="Movies extensions",
             justify=LEFT, anchor=W, font=font )
-        self.ui_extlbl.grid(row=3, column=0, padx=2, pady=2)
+        self.ui_extlbl.grid(row=2, column=0, padx=2, pady=2)
         self.ui_ext = Entry(self.ui_midframe, font=font)
-        self.ui_ext.grid(row=3, column=1, padx=2, pady=2)
+        self.ui_ext.grid(row=2, column=1, padx=2, pady=2)
         # DB
         self.ui_dblbl = Label(self.ui_midframe, text="Database name",
             justify=LEFT, anchor=W, font=font )
-        self.ui_dblbl.grid(row=4, column=0, padx=2, pady=2)
+        self.ui_dblbl.grid(row=3, column=0, padx=2, pady=2)
         self.ui_db = Entry(self.ui_midframe, font=font)
-        self.ui_db.grid(row=4, column=1, padx=2, pady=2)
+        self.ui_db.grid(row=3, column=1, padx=2, pady=2)
         # OUT
         self.ui_outlbl = Label(self.ui_midframe, text="Audio output (local/hdmi)",
             justify=LEFT, anchor=W, font=font )
-        self.ui_outlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_outlbl.grid(row=4, column=0, padx=2, pady=2)
         self.ui_out = Entry(self.ui_midframe, font=font)
-        self.ui_out.grid(row=5, column=1, padx=2, pady=2)
+        self.ui_out.grid(row=4, column=1, padx=2, pady=2)
+        # OPT
+        self.ui_optlbl = Label(self.ui_midframe, text="Omxplayer extra options",
+            justify=LEFT, anchor=W, font=font )
+        self.ui_optlbl.grid(row=5, column=0, padx=2, pady=2)
+        self.ui_opt = Entry(self.ui_midframe, font=font)
+        self.ui_opt.grid(row=5, column=1, padx=2, pady=2)
         # URL1L
         self.ui_url1llbl = Label(self.ui_midframe, text="Url 1 name",
             justify=LEFT, anchor=W, font=font )
@@ -869,11 +884,11 @@ class Player(object):
             if not url:
                 sub = file[0:-3] + "srt"
                 if isfile(sub):
-                    cmd = self.cfg.OMXCMD2.format(self.cfg.OUT, sub, file)
+                    cmd = self.cfg.OMXCMD2.format(self.cfg.OPT, self.cfg.OUT, sub, file)
                 else:
-                    cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
+                    cmd = self.cfg.OMXCMD1.format(self.cfg.OPT, self.cfg.OUT, file)
             else:
-                cmd = self.cfg.OMXCMD1.format(self.cfg.OUT, file)
+                cmd = self.cfg.OMXCMD1.format(self.cfg.OPT, self.cfg.OUT, file)
         else:
             cmd = self.cfg.MPLRCMD.format(file)
         if DEBUG:
