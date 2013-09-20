@@ -63,6 +63,7 @@ from tkinter import NORMAL
 from tkinter import DISABLED
 from tkinter import messagebox
 from tkinter.font import Font
+from tkinter.filedialog import askopenfilename
 
 #-------------------------------------------------------------------------#
 # FUNCTIONS
@@ -909,6 +910,18 @@ class Player(object):
 
     #---------------------------------------------------------------------#
 
+    def directPlay(self):
+
+        """Direct play a file"""
+        file = askopenfilename(title="Select a movie")
+        if file:
+            ps = playScreen()
+            self.play(False, file)
+            ps.destroy()
+        return(True)
+        
+    #---------------------------------------------------------------------#
+
     def displayHelp(self):
 
         """Display help"""
@@ -1147,18 +1160,22 @@ class Player(object):
         self.ui_butscan = Button(self.ui_botframe, text="Scan",
             command=self.askToRefreshDataBase, font=font)
         self.ui_butscan.grid(row=1, column=1, padx=2, pady=2)
+        # Button Direct Play
+        self.ui_butdplay = Button(self.ui_botframe, text="Direct Play",
+            command=self.directPlay, font=font)
+        self.ui_butdplay.grid(row=1, column=2, padx=2, pady=2)
         # Button Config
         self.ui_butconf = Button(self.ui_botframe, text="Config",
             command=lambda : self.cfg.display(self), font=font)
-        self.ui_butconf.grid(row=1, column=2, padx=2, pady=2)
+        self.ui_butconf.grid(row=1, column=3, padx=2, pady=2)
         # Button Help
         self.ui_buthelp = Button(self.ui_botframe, text="Help",
             command=self.displayHelp, font=font)
-        self.ui_buthelp.grid(row=1, column=3, padx=2, pady=2)
+        self.ui_buthelp.grid(row=1, column=4, padx=2, pady=2)
         # Button Quit
         self.ui_butquit = Button(self.ui_botframe, text="Quit",
             command=self.stop, font=font)
-        self.ui_butquit.grid(row=1, column=4, padx=2, pady=2)
+        self.ui_butquit.grid(row=1, column=5, padx=2, pady=2)
 
         # General bindings
         self.root.bind("<F1>", self.evtHelp)
