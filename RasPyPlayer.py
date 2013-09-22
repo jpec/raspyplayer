@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.5-dev"
+VERSION = "2.6"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -184,21 +184,38 @@ class Config(object):
         """Clear conf settings"""
 
         self.PATH = None
-        self.EXC = ['Musique', 'Documents']
-        self.EXT = ['.avi', '.mpg', '.mp4', '.wmv', '.mkv']
-        self.DB = '.raspyplayer.sqlite3'
-        self.URL1 = 'rtsp://site.com/flux'
+        self.EXC = []
+        self.EXT = []
+        self.DB = None
+        self.URL1 = None
         self.URL2 = None
         self.URL3 = None
         self.URL4 = None
         self.URL5 = None
-        self.URL1L = 'WEB TV'
+        self.URL1L = 'URL1'
         self.URL2L = 'URL2'
         self.URL3L = 'URL3'
         self.URL4L = 'URL4'
         self.URL5L = 'URL5'
-        self.OUT = 'local'
-        self.OPT = '-t on --align center'
+        self.OUT = None
+        self.OPT = None
+
+    #---------------------------------------------------------------------#
+
+    def defaultValues(self):
+        
+        """Init default values"""
+        
+        if self.EXC == []:
+            self.EXC = ['Musique', 'Documents']
+        if self.EXT == []:
+            self.EXT = ['.avi', '.mpg', '.mp4', '.wmv', '.mkv']
+        if not self.DB:
+            self.DB = '.raspyplayer.sqlite3'
+        if not self.OUT:
+            self.OUT = 'local'
+        if not self.OPT:
+            self.OPT = '-t on --align center'
 
     #---------------------------------------------------------------------#
 
@@ -276,6 +293,7 @@ class Config(object):
                     if DEBUG:
                         print(l)
             f.close()
+            self.defaultValues()
             return(True)
         else:
             return(False)
@@ -472,6 +490,7 @@ class Config(object):
         f.close()
         if self.checkConf():
             self.toggleUrl(self.player)
+            self.readConf()
             self.root.destroy()
     #---------------------------------------------------------------------#
 
