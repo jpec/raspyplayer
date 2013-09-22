@@ -492,6 +492,7 @@ class Config(object):
             self.toggleUrl(self.player)
             self.readConf()
             self.root.destroy()
+
     #---------------------------------------------------------------------#
 
     def toggleUrl(self, player):
@@ -1109,8 +1110,9 @@ class Player(object):
         print("*** Creating GUI ***")
         self.root.title("RasPyPlayer v{}".format(VERSION))
         font = Font(self.root, size=26, family='Sans')
-        self.root.attributes('-fullscreen', True)
-
+        #self.root.attributes('-fullscreen', True)
+        self.root.attributes('-zoomed', '1')
+        
         # Top Frame (search group)
         self.ui_topframe = Frame(self.root, borderwidth=2)
         self.ui_topframe.pack({"side": "top"})
