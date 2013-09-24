@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------#
 # RasPyPlayer.py - Movies player originally designed for Raspberry Pi.
 #-------------------------------------------------------------------------#
-VERSION = "2.6"
+VERSION = "2.7"
 #-------------------------------------------------------------------------#
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
@@ -418,8 +418,10 @@ class Config(object):
         self.ui_url3l.insert(0, self.URL3L)
         self.ui_url4l.insert(0, self.URL4L)
         self.ui_url5l.insert(0, self.URL5L)
-        self.ui_out.insert(0, self.OUT)
-        self.ui_opt.insert(0, self.OPT)
+        if self.OUT:
+            self.ui_out.insert(0, self.OUT)
+        if self.OPT:
+            self.ui_opt.insert(0, self.OPT)
 
     #---------------------------------------------------------------------#
 
