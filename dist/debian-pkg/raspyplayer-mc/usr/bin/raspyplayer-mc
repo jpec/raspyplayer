@@ -8,8 +8,8 @@ VERSION = "2.8"
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
 # Site : http://raspyplayer.org
-# Sources : https://github.com/jpec/RasPyPlayer
-# Bugs : https://github.com/jpec/RasPyPlayer/issues
+# Sources : https://github.com/jpec/raspyplayer
+# Bugs : https://github.com/jpec/raspyplayer/issues
 #
 # License :
 # This program is free software: you can redistribute it and/or modify
@@ -121,7 +121,7 @@ def getHelp():
 
     """Return help text"""
 
-    msg = "RasPyPlayer Media Center, v{0}\n"
+    msg = "Raspyplayer Media Center, v{0}\n"
     msg += "Author : Julien Pecqueur (JPEC)\n"
     msg += "Mail : jpec@julienpecqueur.net\n"
     msg += "Home : http://raspyplayer.org\n"
@@ -871,8 +871,8 @@ class Player(object):
 
         """Stop the Player"""
 
-        msg = "Do you want to quit RasPyPlayer ?"
-        if messagebox.askokcancel("RasPyPlayer MC", msg):
+        msg = "Do you want to quit Raspyplayer ?"
+        if messagebox.askokcancel("Raspyplayer MC", msg):
             print("*** Stopping the Player ***")
             self.db.closeDb()
             self.root.destroy()
@@ -1004,7 +1004,7 @@ class Player(object):
         """Ask to refresh database"""
 
         msg = "Do you want to refresh the movies database ?"
-        if messagebox.askokcancel("RasPyPlayer MC", msg):
+        if messagebox.askokcancel("Raspyplayer MC", msg):
             self.refreshDataBase()
         else:
             self.refreshFilesList()
@@ -1110,7 +1110,7 @@ class Player(object):
         """Create the GUI for Player"""
 
         print("*** Creating GUI ***")
-        self.root.title("RasPyPlayer Media Center v{}".format(VERSION))
+        self.root.title("Raspyplayer Media Center v{}".format(VERSION))
         font = Font(self.root, size=26, family='Sans')
         #self.root.attributes('-fullscreen', True)
         self.root.attributes('-zoomed', '1')

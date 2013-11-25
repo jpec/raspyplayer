@@ -9,8 +9,8 @@ VERSION = 'v0.2'
 # Author : Julien Pecqueur (JPEC)
 # Email : jpec@julienpecqueur.net
 # Site : http://raspyplayer.org
-# Sources : https://github.com/jpec/RasPyPlayer
-# Bugs : https://github.com/jpec/RasPyPlayer/issues
+# Sources : https://github.com/jpec/raspyplayer
+# Bugs : https://github.com/jpec/raspyplayer/issues
 #
 # License :
 # This program is free software: you can redistribute it and/or modify
