@@ -1,5 +1,5 @@
-Package: raspyplayer
-Version: 2.7
+Package: raspyplayer-lite
+Version: 2.8
 Section: base
 Priority: optional
 Architecture: all

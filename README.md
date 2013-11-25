@@ -1,18 +1,28 @@
-RasPyPlayer
-===========
+Raspyplayer Media Center & Raspyplayer Lite
+===========================================
 
-A simple media player for the Raspberry Pi, written in Python 3 and using the omxplayer backend.
+Media Center and Video Player for the Raspberry Pi, written in Python 3 and using the omxplayer backend.
 
 http://raspyplayer.org
 
-Installation (Raspbian)
------------------------
+Installation Raspyplayer Media Center (Raspbian)
+------------------------------------------------
 
-Download the Raspbian package on this page (raspyplayer.deb) and save it on your Pi. 
+Download the Raspbian package (raspyplayer-mc.deb) and save it on your Pi. 
 
-Use the following command to install RasPyPlayer:
+Use the following command to install Raspyplayer Media Center :
 
-    sudo dpkg -i raspyplayer.deb
+    sudo dpkg -i raspyplayer-mc.deb
+
+Installation Raspyplayer Lite (Raspbian)
+----------------------------------------
+
+Download the Raspbian package (raspyplayer-lite.deb) and save it on your Pi. 
+
+Use the following command to install Raspyplayer Lite :
+
+    sudo dpkg -i raspyplayer-lite.deb
+
 
 Installation (Archlinux)
 ------------------------
@@ -26,14 +36,10 @@ Add the following line in your /etc/rc.local:
 
     mount -t cifs //nashostname/nasvolume/ -o username=<smb username>,password=<smb password> /media/nas -o iocharset=utf8
 
-First launch of RasPyPlayer
+First launch of Raspyplayer
 ---------------------------
 
-You can find the RasPyPlayer program in the menu. You need to click on "Scan" to refresh you movies database. 
-
-You can also launch it from command line:
-
-    raspyplayer
+You can find the RasPyPlayer programs in the menu. You need to click on "Scan" to refresh you movies database. 
 
 
 

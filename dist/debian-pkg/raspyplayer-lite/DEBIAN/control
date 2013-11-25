@@ -1,0 +1,9 @@
+Package: raspyplayer-lite
+Version: 0.2
+Section: base
+Priority: optional
+Architecture: all
+Depends: bash,python3,python3-tk,xterm,omxplayer,raspyplayer-mc
+Maintainer: Julien Pecqueur <jpec@julienpecqueur.net>
+Description: Simple video player for the Raspberry Pi.
+Homepage: http://raspyplayer.org

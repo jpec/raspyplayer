@@ -1,7 +1,9 @@
 #!/usr/bin/env xdg-open
+
 [Desktop Entry]
 Name=RasPyPlayer Media Center
-Exec=raspyplayer
-Icon=/usr/share/pixmaps/raspyplayer.png
+Exec=raspyplayer-mc
+Icon=/usr/share/pixmaps/raspyplayer-mc.png
 Type=Application
 Categories=Media;
+Name[fr_FR]=RasPyPlayer Media Center
