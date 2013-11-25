@@ -1,6 +1,6 @@
 # Maintainer: Julien Pecqueur (JPEC) <jpec[at]julienpecqueur[dot]net>
 pkgname=raspyplayer
-pkgver=2.8
+pkgver=v2.7
 pkgrel=5
 pkgdesc="A simple media player originally designed for the Raspberry Pi."
 url="http://raspyplayer.org"
